@@ -1,0 +1,433 @@
+{
+  "company_details": {
+    "company_unique_identifier": 1,
+    "company_full_name": "Hummus & More GmbH",
+    "meta_information": {
+      "format_version": "1.0.0",
+      "date_generated": "2024-05-20",
+      "default_currency_symbol": "€"
+    },
+    "global_configurations": {
+      "tax_rates_definitions": [
+        { "tax_rate_unique_identifier": 1, "tax_rate_name": "Standard (19%)", "rate_percentage": 19.0, "fiscal_mapping_type": "NORMAL" },
+        { "tax_rate_unique_identifier": 2, "tax_rate_name": "Reduced (7%)", "rate_percentage": 7.0, "fiscal_mapping_type": "REDUCED" }
+      ],
+      "main_groups_definitions": [
+        { "main_group_unique_identifier": 1, "main_group_name": "Getraenke" },
+        { "main_group_unique_identifier": 2, "main_group_name": "Speisen" }
+      ],
+      "payment_methods_definitions": [
+        { "payment_method_unique_identifier": 1, "payment_method_name": "Bar", "payment_method_type": "CASH" },
+        { "payment_method_unique_identifier": 2, "payment_method_name": "EC-Karte", "payment_method_type": "CARD" },
+        { "payment_method_unique_identifier": 3, "payment_method_name": "Kreditkarte", "payment_method_type": "CREDIT_CARD" }
+      ],
+      "print_format_profiles_definitions": [
+        {
+          "print_profile_unique_identifier": "standard_receipt",
+          "profile_name": "Standard Bon Layout",
+          "settings": { "show_item_name": true, "show_price": true, "show_taxes_summary": true, "font_size_body": "NORMAL", "font_size_header": "LARGE" }
+        },
+        {
+          "print_profile_unique_identifier": "kitchen_ticket",
+          "profile_name": "Kitchen Ticket Layout",
+          "settings": { "show_item_name": true, "show_modifiers": true, "show_table_number": true, "show_price": false, "font_size_body": "LARGE", "font_size_header": "NORMAL", "cut_after_each_item": false }
+        }
+      ],
+      "customer_display_layout_profiles_definitions": [
+        {
+          "cd_layout_profile_unique_identifier": "c11_default_view",
+          "profile_name": "C11 Standardansicht",
+          "settings": { "display_resolution": "1024x768", "show_item_lines": true, "show_subtotal": true, "show_total": true, "show_welcome_text": true, "welcome_text": "Willkommen bei Hummus & More!" }
+        },
+        {
+          "cd_layout_profile_unique_identifier": "c3_compact_view",
+          "profile_name": "C3 Kompaktansicht",
+          "settings": { "display_resolution": "320x240", "show_item_lines": true, "show_subtotal": true, "show_total": true, "show_welcome_text": false, "item_line_limit": 4 }
+        }
+      ]
+    },
+    "branches": [
+      {
+        "branch_unique_identifier": 1,
+        "branch_name": "Hauptfiliale",
+        "branch_address": "Musterstraße 1, 12345 Musterstadt",
+        "point_of_sale_devices": [
+          {
+            "pos_device_unique_identifier": 1,
+            "pos_device_name": "Kasse 1 (Haupttheke)",
+            "pos_device_type": "DESKTOP",
+            "pos_device_external_number": 1,
+            "pos_device_settings": {
+              "default_currency_identifier": "€",
+              "default_linked_drink_tax_rate_unique_identifier": 1,
+              "default_linked_food_tax_rate_unique_identifier": 2
+            },
+            "hardware_interfaces": [
+              {
+                "interface_unique_identifier": "pos1_usb_port_front",
+                "interface_name": "USB Port (Front)",
+                "interface_type": "USB",
+                "interface_protocol_details": {}
+              },
+              {
+                "interface_unique_identifier": "pos1_com1",
+                "interface_name": "Serial Port 1 (COM1)",
+                "interface_type": "SERIAL",
+                "interface_protocol_details": { "baud_rate": 9600, "data_bits": 8, "parity": "NONE", "stop_bits": 1 }
+              },
+              {
+                "interface_unique_identifier": "pos1_ethernet_lan",
+                "interface_name": "Ethernet (LAN)",
+                "interface_type": "ETHERNET",
+                "interface_protocol_details": { "ip_address_static": "192.168.1.10", "port_number": 8080, "subnet_mask": "255.255.255.0", "gateway_ip": "192.168.1.1" }
+              }
+            ],
+            "built_in_displays": [
+              {
+                "display_unique_identifier": "pos1_main_touchscreen_display",
+                "display_name": "Main Touchscreen Display",
+                "display_type": "TOUCHSCREEN",
+                "display_resolution": "1280x800",
+                "is_primary_display": true,
+                "brightness_level_percent": 90,
+                "display_activities": [ 
+                  {
+                    "activity_unique_identifier": "main_sales_activity",
+                    "activity_name": "Hauptverkaufsbildschirm",
+                    "activity_type": "SALES_SCREEN",
+                    "default_starting_activity": true,
+                    "user_interface_elements": [
+                      {
+                        "element_unique_identifier": "receipt_display_area",
+                        "element_type": "RECEIPT_DISPLAY_AREA",
+                        "position_x_pixels": 0,
+                        "position_y_pixels": 0,
+                        "width_pixels": 600,
+                        "height_pixels": 800,
+                        "display_lines_max": 20,
+                        "font_size": "NORMAL"
+                      },
+                      {
+                        "element_unique_identifier": "numeric_keypad",
+                        "element_type": "NUMERIC_KEYPAD",
+                        "position_x_pixels": 600,
+                        "position_y_pixels": 400,
+                        "width_pixels": 200,
+                        "height_pixels": 400,
+                        "key_layout": "STANDARD_CALCULATOR",
+                        "background_color": "#EEEEEE"
+                      },
+                      {
+                        "element_unique_identifier": "category_navigation_panel",
+                        "element_type": "CATEGORY_NAVIGATION_PANEL",
+                        "position_x_pixels": 800,
+                        "position_y_pixels": 0,
+                        "width_pixels": 480,
+                        "height_pixels": 800,
+                        "background_color": "#F5F5F5",
+                        "button_configurations": [
+                          { "button_unique_identifier": "btn_softdrinks", "linked_category_unique_identifier": 1, "button_text_on_display": "Softdrinks", "display_x_pos": 0, "display_y_pos": 0, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_coffee", "linked_category_unique_identifier": 2, "button_text_on_display": "Kaffee", "display_x_pos": 120, "display_y_pos": 0, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_beer", "linked_category_unique_identifier": 3, "button_text_on_display": "Bier", "display_x_pos": 240, "display_y_pos": 0, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_wine", "linked_category_unique_identifier": 4, "button_text_on_display": "Wein", "display_x_pos": 360, "display_y_pos": 0, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_cocktails", "linked_category_unique_identifier": 5, "button_text_on_display": "Cocktails", "display_x_pos": 0, "display_y_pos": 80, "display_width": 160, "display_height": 80 },
+                          { "button_unique_identifier": "sep_food", "element_type": "SEPARATOR_BUTTON", "button_text_on_display": "--- SPEISEN ---", "display_x_pos": 160, "display_y_pos": 80, "display_width": 320, "display_height": 80 },
+                          { "button_unique_identifier": "btn_hummus", "linked_category_unique_identifier": 6, "button_text_on_display": "HUMMUS", "display_x_pos": 0, "display_y_pos": 160, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_snacks", "linked_category_unique_identifier": 7, "button_text_on_display": "SNACKS", "display_x_pos": 120, "display_y_pos": 160, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_dips", "linked_category_unique_identifier": 8, "button_text_on_display": "DIPS", "display_x_pos": 240, "display_y_pos": 160, "display_width": 120, "display_height": 80 },
+                          { "button_unique_identifier": "btn_main_courses", "linked_category_unique_identifier": 9, "button_text_on_display": "HAUPTSPEISEN", "display_x_pos": 360, "display_y_pos": 160, "display_width": 120, "display_height": 80 }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "activity_unique_identifier": "category_detail_activity_softdrinks",
+                    "activity_name": "Softdrinks Detailansicht",
+                    "activity_type": "ITEM_SELECTION_SCREEN",
+                    "linked_category_unique_identifier": 1, 
+                    "user_interface_elements": [
+                      {
+                        "element_unique_identifier": "back_button_softdrinks",
+                        "element_type": "BUTTON",
+                        "position_x_pixels": 10, "position_y_pixels": 10, "width_pixels": 100, "height_pixels": 50,
+                        "button_text_content": "Zurück",
+                        "linked_action": { "action_type": "NAVIGATE_TO_ACTIVITY", "target_activity_unique_identifier": "main_sales_activity" }
+                      },
+                      {
+                        "element_unique_identifier": "softdrinks_item_grid",
+                        "element_type": "ITEM_GRID",
+                        "position_x_pixels": 0,
+                        "position_y_pixels": 80,
+                        "width_pixels": 1280,
+                        "height_pixels": 720,
+                        "display_items_from_category_unique_identifier": 1, 
+                        "grid_columns": 5,
+                        "grid_rows": 4,
+                        "item_button_template": { 
+                           "background_color_default": "#ADD8E6", 
+                           "text_color_default": "#000000",
+                           "font_size": "MEDIUM",
+                           "show_price": true
+                        }
+                      }
+                    ]
+                  }
+                  
+                ]
+              }
+            ],
+            "connected_peripherals": [
+              {
+                "peripheral_unique_identifier": "pos1_receipt_printer",
+                "peripheral_name": "Receipt Printer (Epson)",
+                "peripheral_type": "PRINTER",
+                "linked_interface_unique_identifier": "pos1_com1",
+                "printer_details": {
+                  "printer_model_name": "Epson TM-T88V",
+                  "is_default_for_receipts": true,
+                  "is_default_for_kitchen_tickets": false,
+                  "paper_width_mm": 80,
+                  "linked_print_format_profile_unique_identifier": "standard_receipt"
+                }
+              },
+              {
+                "peripheral_unique_identifier": "pos1_customer_facing_display",
+                "peripheral_name": "Customer Display (Vectron C11)",
+                "peripheral_type": "CUSTOMER_DISPLAY",
+                "linked_interface_unique_identifier": "pos1_usb_port_front",
+                "customer_display_details": {
+                  "display_model_name": "Vectron C11",
+                  "display_type": "GRAPHIC_LCD",
+                  "display_resolution": "1024x768",
+                  "brightness_level_percent": 85,
+                  "idle_timeout_seconds": 60,
+                  "linked_customer_display_layout_profile_unique_identifier": "c11_default_view"
+                }
+              },
+              {
+                "peripheral_unique_identifier": "pos1_kitchen_printer",
+                "peripheral_name": "Kitchen Printer (Star TSP)",
+                "peripheral_type": "PRINTER",
+                "linked_interface_unique_identifier": "pos1_ethernet_lan",
+                "printer_details": {
+                  "printer_model_name": "Star TSP100",
+                  "is_default_for_receipts": false,
+                  "is_default_for_kitchen_tickets": true,
+                  "paper_width_mm": 80,
+                  "linked_print_format_profile_unique_identifier": "kitchen_ticket"
+                }
+              }
+            ],
+            "categories_for_this_pos": [
+              { "category_unique_identifier": 1, "category_name_full": "Softdrinks", "category_type": "drink", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 1 },
+              { "category_unique_identifier": 2, "category_name_full": "Kaffee", "category_type": "drink", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 1 },
+              { "category_unique_identifier": 3, "category_name_full": "Bier", "category_type": "drink", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 1 },
+              { "category_unique_identifier": 4, "category_name_full": "Wein", "category_type": "drink", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 1 },
+              { "category_unique_identifier": 5, "category_name_full": "Cocktails & Mixed Drinks", "category_type": "drink", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 1 },
+              { "category_unique_identifier": 6, "category_name_full": "Hummus-Gerichte", "category_type": "food", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 2 },
+              { "category_unique_identifier": 7, "category_name_full": "Snacks", "category_type": "food", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 2 },
+              { "category_unique_identifier": 8, "category_name_full": "Dips", "category_type": "food", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 2 },
+              { "category_unique_identifier": 9, "category_name_full": "Hauptspeisen", "category_type": "food", "parent_category_unique_identifier": null, "default_linked_main_group_unique_identifier": 2 }
+            ],
+            "items_for_this_pos": [
+              {
+                "item_unique_identifier": 1001, "menu_display_name": "Limo Nana", "button_display_name": "Limo Nana", "receipt_print_name": "Limo Nana", "item_price_value": 3.00, "associated_category_unique_identifier": 1, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1002, "menu_display_name": "Mineralwasser 0,33l", "button_display_name": "Min.Wasser 0,33l", "receipt_print_name": "Min.Wasser 0,33l Fl.", "item_price_value": 3.20, "associated_category_unique_identifier": 1, "additional_item_attributes": {"volume_in_liters": 0.33, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1003, "menu_display_name": "Softdrink: Coca Cola", "button_display_name": "Coca Cola", "receipt_print_name": "Softd.: Coca Cola", "item_price_value": 3.30, "associated_category_unique_identifier": 1, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1004, "menu_display_name": "Softdrink: Cola zero", "button_display_name": "Cola Zero", "receipt_print_name": "Softd.: Cola Zero", "item_price_value": 3.30, "associated_category_unique_identifier": 1, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1005, "menu_display_name": "Softdrink: Apfelschorle", "button_display_name": "Apfelschorle", "receipt_print_name": "Softd.: Apfelschorle", "item_price_value": 3.30, "associated_category_unique_identifier": 1, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1101, "menu_display_name": "Espresso", "button_display_name": "Espresso", "receipt_print_name": "Espresso", "item_price_value": 2.00, "associated_category_unique_identifier": 2, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1102, "menu_display_name": "Doppio", "button_display_name": "Doppio", "receipt_print_name": "Doppio", "item_price_value": 3.00, "associated_category_unique_identifier": 2, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1103, "menu_display_name": "Kaffee", "button_display_name": "Kaffee", "receipt_print_name": "Kaffee", "item_price_value": 3.50, "associated_category_unique_identifier": 2, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1201, "menu_display_name": "Corona Bier", "button_display_name": "Corona Bier", "receipt_print_name": "Corona Bier", "item_price_value": 4.00, "associated_category_unique_identifier": 3, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1301, "menu_display_name": "Schwane 0,2l", "button_display_name": "Schwane 0,2l", "receipt_print_name": "Schwane 0,2l", "item_price_value": 7.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1302, "menu_display_name": "Schwane Fl. 0,75l", "button_display_name": "Schwane Fl.", "receipt_print_name": "Schwane Fl. 0,75l", "item_price_value": 25.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1303, "menu_display_name": "Schmitges 0,2l", "button_display_name": "Schmitges 0,2l", "receipt_print_name": "Schmitges 0,2l", "item_price_value": 7.50, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1304, "menu_display_name": "Schmitges Fl. 0,75l", "button_display_name": "Schmitges Fl.", "receipt_print_name": "Schmitges Fl. 0,75l", "item_price_value": 27.50, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1305, "menu_display_name": "Seebrich 0,2l", "button_display_name": "Seebrich 0,2l", "receipt_print_name": "Seebrich 0,2l", "item_price_value": 7.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1306, "menu_display_name": "Seebrich Fl. 0,75l", "button_display_name": "Seebrich Fl.", "receipt_print_name": "Seebrich Fl. 0,75l", "item_price_value": 25.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1307, "menu_display_name": "Haus Rothenberg 0,2l", "button_display_name": "Haus Roth. 0,2l", "receipt_print_name": "Haus Roth. 0,2l", "item_price_value": 7.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1308, "menu_display_name": "Haus Rothenberg Fl. 0,75l", "button_display_name": "Haus Roth. Fl.", "receipt_print_name": "Haus Roth. Fl. 0,75l", "item_price_value": 25.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1309, "menu_display_name": "Studier 0,2l", "button_display_name": "Studier 0,2l", "receipt_print_name": "Studier 0,2l", "item_price_value": 7.50, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1310, "menu_display_name": "Studier Fl. 0,75l", "button_display_name": "Studier Fl.", "receipt_print_name": "Studier Fl. 0,75l", "item_price_value": 27.50, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1311, "menu_display_name": "Schmitges alkfrei 0,2l", "button_display_name": "Schmitges Alk.Fr.", "receipt_print_name": "Schmitges Alkoholfrei 0,2l", "item_price_value": 7.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.2, "is_alcohol_free": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1312, "menu_display_name": "Schmitges alkfrei Fl. 0,75l", "button_display_name": "Schmitges Alk.Fl.", "receipt_print_name": "Schmitges Alk.Frei Fl.", "item_price_value": 25.00, "associated_category_unique_identifier": 4, "additional_item_attributes": {"volume_in_liters": 0.75, "is_bottle": true, "is_alcohol_free": true}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1401, "menu_display_name": "Aperol Spritz", "button_display_name": "Aperol Spritz", "receipt_print_name": "Aperol Spritz", "item_price_value": 7.50, "associated_category_unique_identifier": 5, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1402, "menu_display_name": "Vodka Nana", "button_display_name": "Vodka Nana", "receipt_print_name": "Vodka Nana", "item_price_value": 8.00, "associated_category_unique_identifier": 5, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1403, "menu_display_name": "Arak Nana", "button_display_name": "Arak Nana", "receipt_print_name": "Arak Nana", "item_price_value": 8.00, "associated_category_unique_identifier": 5, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 1404, "menu_display_name": "Shot 4cl Whiskey/Arak/Vodka", "button_display_name": "Shot 4cl Mix", "receipt_print_name": "Shot 4cl Whiskey/Arak/Vodka", "item_price_value": 4.50, "associated_category_unique_identifier": 5, "additional_item_attributes": {"volume_in_cl": 4}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2001, "menu_display_name": "Kichererbsen", "button_display_name": "Kichererbsen", "receipt_print_name": "Hummus Kichererbsen", "item_price_value": 7.50, "associated_category_unique_identifier": 6, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2002, "menu_display_name": "Pinienkerne", "button_display_name": "Pinienkerne", "receipt_print_name": "Hummus Pinienkerne", "item_price_value": 8.00, "associated_category_unique_identifier": 6, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2003, "menu_display_name": "Champignons", "button_display_name": "Champignons", "receipt_print_name": "Hummus Champignons", "item_price_value": 8.00, "associated_category_unique_identifier": 6, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2004, "menu_display_name": "Falafel & Aubergine", "button_display_name": "Falafel & Aub.", "receipt_print_name": "Hummus Falafel & Aubergine", "item_price_value": 9.00, "associated_category_unique_identifier": 6, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2005, "menu_display_name": "Siniya", "button_display_name": "Siniya", "receipt_print_name": "Hummus Siniya", "item_price_value": 10.00, "associated_category_unique_identifier": 6, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2101, "menu_display_name": "Pita Zaatar", "button_display_name": "Pita Zaatar", "receipt_print_name": "Snack: Pita Zaatar", "item_price_value": 3.20, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2102, "menu_display_name": "Oliven", "button_display_name": "Oliven", "receipt_print_name": "Snack: Oliven", "item_price_value": 3.20, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2103, "menu_display_name": "Saure Gurken", "button_display_name": "Saure Gurken", "receipt_print_name": "Snack: Saure Gurken", "item_price_value": 3.20, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2104, "menu_display_name": "Pommes", "button_display_name": "Pommes", "receipt_print_name": "Snack: Pommes", "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2105, "menu_display_name": "Israeli Salat", "button_display_name": "Israeli Salat", "receipt_print_name": "Snack: Israeli Salat", "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2106, "menu_display_name": "Falafel", "button_display_name": "Falafel", "receipt_print_name": "Snack: Falafel", "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2107, "menu_display_name": "Schnitzel", "button_display_name": "Schnitzel", "receipt_print_name": "Snack: Schnitzel", "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2108, "menu_display_name": "Baba Ganoush", "button_display_name": "Baba Ganoush", "receipt_print_name": "Snack: Baba Ganoush", "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2109, "menu_display_name": "Labaneh", "button_display_name": "Labaneh", "receipt_print_name": "Snack: Labaneh",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2110, "menu_display_name": "Hummus", "button_display_name": "Hummus", "receipt_print_name": "Snack: Hummus",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2111, "menu_display_name": "Champignons", "button_display_name": "Champignons", "receipt_print_name": "Snack: Champignons",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2112, "menu_display_name": "Weißkraut", "button_display_name": "Weißkraut", "receipt_print_name": "Snack: Weißkraut",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2113, "menu_display_name": "Rotkraut", "button_display_name": "Rotkraut", "receipt_print_name": "Snack: Rotkraut",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2114, "menu_display_name": "Matbucha", "button_display_name": "Matbucha", "receipt_print_name": "Snack: Matbucha",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2115, "menu_display_name": "Reis", "button_display_name": "Reis", "receipt_print_name": "Snack: Reis",
+                "item_price_value": 5.00, "associated_category_unique_identifier": 7, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2201, "menu_display_name": "S'chug", "button_display_name": "S'chug", "receipt_print_name": "Dip: S'chug",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2202, "menu_display_name": "Tahini", "button_display_name": "Tahini", "receipt_print_name": "Dip: Tahini",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2203, "menu_display_name": "Amba", "button_display_name": "Amba", "receipt_print_name": "Dip: Amba",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2204, "menu_display_name": "Senf", "button_display_name": "Senf", "receipt_print_name": "Dip: Senf",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2205, "menu_display_name": "Ketchup", "button_display_name": "Ketchup", "receipt_print_name": "Dip: Ketchup",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2206, "menu_display_name": "Mayo", "button_display_name": "Mayo", "receipt_print_name": "Dip: Mayo",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2207, "menu_display_name": "Joghurt-Minze", "button_display_name": "Joghurt-Minze", "receipt_print_name": "Dip: Joghurt-Minze",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2208, "menu_display_name": "Honig-Senf", "button_display_name": "Honig-Senf", "receipt_print_name": "Dip: Honig-Senf",
+                "item_price_value": 0.50, "associated_category_unique_identifier": 8, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2301, "menu_display_name": "Kebab", "button_display_name": "Kebab", "receipt_print_name": "Hauptspeise: Kebab",
+                "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2302, "menu_display_name": "Schnitzel", "button_display_name": "Schnitzel", "receipt_print_name": "Hauptspeise: Schnitzel",
+                "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2303, "menu_display_name": "Meatballs", "button_display_name": "Meatballs", "receipt_print_name": "Hauptspeise: Meatballs",
+                "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2304, "menu_display_name": "Shawarma", "button_display_name": "Shawarma", "receipt_print_name": "Hauptspeise: Shawarma",
+                "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              },
+              {
+                "item_unique_identifier": 2305, "menu_display_name": "Hamburger", "button_display_name": "Hamburger", "receipt_print_name": "Hauptspeise: Hamburger",
+                "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
