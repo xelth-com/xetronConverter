@@ -1,0 +1,944 @@
+{
+  "$schema": "https://schemas.eckasse.com/oop-pos-mdf/v2.0.0/schema.json",
+  "company_details": {
+    "company_unique_identifier": 1,
+    "company_full_name": "Hummus & More GmbH",
+    "meta_information": {
+      "format_version": "2.0.0",
+      "previous_versions": ["1.0.0", "0.9.1"],
+      "schema_validation": {
+        "required_fields": ["company_unique_identifier", "branches"],
+        "field_constraints": {
+          "pos_device_external_number": {"type": "integer", "min": 1, "max": 9999},
+          "item_price_value": {"type": "decimal", "precision": 2, "min": 0},
+          "category_unique_identifier": {"type": "integer", "min": 1}
+        }
+      },
+      "migration_info": {
+        "from_version": "1.0.0",
+        "migration_scripts": [
+          {
+            "from_version": "1.0.0",
+            "to_version": "2.0.0",
+            "migration_script": "/migrations/1.0.0-to-2.0.0.js",
+            "description": "Added multilingual support, audit trails, and enhanced security",
+            "breaking_changes": [
+              "display_names now object instead of string",
+              "added required audit_trail for items"
+            ]
+          }
+        ],
+        "backward_compatibility": ["1.0.x"],
+        "auto_migration": true
+      },
+      "date_generated": "2024-05-20T10:30:00Z",
+      "generated_by": "eckasse-configurator-v2.0.0",
+      "default_currency_symbol": "€",
+      "default_language": "de",
+      "supported_languages": ["de", "en", "fr"],
+      "audit_trail": {
+        "created_at": "2024-01-15T10:30:00Z",
+        "created_by": "system@eckasse.com",
+        "last_modified_at": "2024-05-20T10:30:00Z",
+        "last_modified_by": "admin@hummusandmore.de",
+        "version": 5,
+        "change_log": [
+          {
+            "timestamp": "2024-05-20T10:30:00Z",
+            "user": "admin@hummusandmore.de",
+            "action": "config_update",
+            "description": "Updated to v2.0.0 format with enhanced features",
+            "affected_components": ["items", "categories", "security"]
+          }
+        ]
+      }
+    },
+    "global_configurations": {
+      "tax_rates_definitions": [
+        { 
+          "tax_rate_unique_identifier": 1, 
+          "tax_rate_names": {
+            "de": "Standard (19%)",
+            "en": "Standard (19%)",
+            "fr": "Standard (19%)"
+          },
+          "rate_percentage": 19.0, 
+          "fiscal_mapping_type": "NORMAL",
+          "valid_from": "2024-01-01",
+          "valid_until": null
+        },
+        { 
+          "tax_rate_unique_identifier": 2, 
+          "tax_rate_names": {
+            "de": "Ermäßigt (7%)",
+            "en": "Reduced (7%)",
+            "fr": "Réduit (7%)"
+          },
+          "rate_percentage": 7.0, 
+          "fiscal_mapping_type": "REDUCED",
+          "valid_from": "2024-01-01",
+          "valid_until": null
+        }
+      ],
+      "main_groups_definitions": [
+        { 
+          "main_group_unique_identifier": 1, 
+          "main_group_names": {
+            "de": "Getränke",
+            "en": "Beverages",
+            "fr": "Boissons"
+          }
+        },
+        { 
+          "main_group_unique_identifier": 2, 
+          "main_group_names": {
+            "de": "Speisen",
+            "en": "Food",
+            "fr": "Nourriture"
+          }
+        }
+      ],
+      "payment_methods_definitions": [
+        { 
+          "payment_method_unique_identifier": 1, 
+          "payment_method_names": {
+            "de": "Bar",
+            "en": "Cash",
+            "fr": "Espèces"
+          },
+          "payment_method_type": "CASH" 
+        },
+        { 
+          "payment_method_unique_identifier": 2, 
+          "payment_method_names": {
+            "de": "EC-Karte",
+            "en": "Debit Card",
+            "fr": "Carte de débit"
+          },
+          "payment_method_type": "CARD" 
+        },
+        { 
+          "payment_method_unique_identifier": 3, 
+          "payment_method_names": {
+            "de": "Kreditkarte",
+            "en": "Credit Card",
+            "fr": "Carte de crédit"
+          },
+          "payment_method_type": "CREDIT_CARD" 
+        }
+      ],
+      "promotions_definitions": [
+        {
+          "promotion_id": "happy_hour_drinks",
+          "names": {
+            "de": "Happy Hour Getränke",
+            "en": "Happy Hour Drinks",
+            "fr": "Happy Hour Boissons"
+          },
+          "type": "percentage_discount",
+          "conditions": {
+            "min_quantity": 1,
+            "applicable_categories": [1, 2, 3, 4, 5],
+            "applicable_items": []
+          },
+          "discount": {
+            "type": "percentage",
+            "value": 20.0,
+            "max_discount_amount": 5.00
+          },
+          "validity": {
+            "start_date": "2024-01-01",
+            "end_date": "2024-12-31",
+            "days_of_week": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+            "time_range": {"start": "16:00", "end": "18:00"}
+          },
+          "is_active": true
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_id": "daily_closing",
+          "name": "Täglicher Kassenschluss",
+          "trigger": {"type": "schedule", "time": "23:30"},
+          "actions": [
+            {"type": "generate_z_report"},
+            {"type": "backup_data"},
+            {"type": "sync_to_cloud"},
+            {"type": "send_notification", "recipients": ["manager@hummusandmore.de"]}
+          ],
+          "is_active": true
+        },
+        {
+          "workflow_id": "low_stock_alert",
+          "name": "Niedrige Lagerbestände",
+          "trigger": {"type": "inventory_threshold", "threshold": 5},
+          "actions": [
+            {"type": "send_notification", "template": "low_stock_alert"},
+            {"type": "create_purchase_order", "auto_approve": false}
+          ],
+          "is_active": true
+        }
+      ],
+      "integrations": {
+        "accounting_system": {
+          "provider": "DATEV",
+          "api_endpoint": "https://api.datev.de/v1",
+          "credentials_ref": "datev_creds",
+          "sync_schedule": "daily_23:00",
+          "is_enabled": true
+        },
+        "inventory_management": {
+          "provider": "custom_erp",
+          "webhook_url": "https://erp.hummusandmore.de/pos-updates",
+          "real_time_sync": true,
+          "is_enabled": false
+        },
+        "loyalty_program": {
+          "provider": "custom",
+          "api_key_ref": "loyalty_api_key",
+          "is_enabled": true
+        }
+      },
+      "security_settings": {
+        "encryption": {
+          "at_rest": true,
+          "in_transit": true,
+          "algorithm": "AES-256"
+        },
+        "access_control": {
+          "session_timeout": 3600,
+          "max_failed_attempts": 3,
+          "lockout_duration": 900,
+          "require_2fa": true
+        },
+        "data_privacy": {
+          "gdpr_compliance": true,
+          "data_retention_days": 2555,
+          "anonymization_rules": [
+            {
+              "field": "customer_data",
+              "after_days": 90,
+              "method": "hash"
+            }
+          ]
+        }
+      },
+      "print_format_profiles_definitions": [
+        {
+          "print_profile_unique_identifier": "standard_receipt",
+          "profile_names": {
+            "de": "Standard Bon Layout",
+            "en": "Standard Receipt Layout",
+            "fr": "Disposition de reçu standard"
+          },
+          "settings": { 
+            "show_item_name": true, 
+            "show_price": true, 
+            "show_taxes_summary": true, 
+            "font_size_body": "NORMAL", 
+            "font_size_header": "LARGE" 
+          }
+        },
+        {
+          "print_profile_unique_identifier": "kitchen_ticket",
+          "profile_names": {
+            "de": "Küchen Ticket Layout",
+            "en": "Kitchen Ticket Layout",
+            "fr": "Disposition de ticket de cuisine"
+          },
+          "settings": { 
+            "show_item_name": true, 
+            "show_modifiers": true, 
+            "show_table_number": true, 
+            "show_price": false, 
+            "font_size_body": "LARGE", 
+            "font_size_header": "NORMAL", 
+            "cut_after_each_item": false 
+          }
+        }
+      ],
+      "customer_display_layout_profiles_definitions": [
+        {
+          "cd_layout_profile_unique_identifier": "c11_default_view",
+          "profile_names": {
+            "de": "C11 Standardansicht",
+            "en": "C11 Default View",
+            "fr": "Vue par défaut C11"
+          },
+          "settings": { 
+            "display_resolution": "1024x768", 
+            "show_item_lines": true, 
+            "show_subtotal": true, 
+            "show_total": true, 
+            "show_welcome_text": true, 
+            "welcome_texts": {
+              "de": "Willkommen bei Hummus & More!",
+              "en": "Welcome to Hummus & More!",
+              "fr": "Bienvenue chez Hummus & More!"
+            }
+          }
+        },
+        {
+          "cd_layout_profile_unique_identifier": "c3_compact_view",
+          "profile_names": {
+            "de": "C3 Kompaktansicht",
+            "en": "C3 Compact View",
+            "fr": "Vue compacte C3"
+          },
+          "settings": { 
+            "display_resolution": "320x240", 
+            "show_item_lines": true, 
+            "show_subtotal": true, 
+            "show_total": true, 
+            "show_welcome_text": false, 
+            "item_line_limit": 4 
+          }
+        }
+      ]
+    },
+    "branches": [
+      {
+        "branch_unique_identifier": 1,
+        "branch_names": {
+          "de": "Hauptfiliale",
+          "en": "Main Branch",
+          "fr": "Succursale principale"
+        },
+        "branch_address": "Musterstraße 1, 12345 Musterstadt",
+        "point_of_sale_devices": [
+          {
+            "pos_device_unique_identifier": 1,
+            "pos_device_names": {
+              "de": "Kasse 1 (Haupttheke)",
+              "en": "POS 1 (Main Counter)",
+              "fr": "Caisse 1 (Comptoir principal)"
+            },
+            "pos_device_type": "DESKTOP",
+            "pos_device_external_number": 1,
+            "pos_device_settings": {
+              "default_currency_identifier": "€",
+              "default_linked_drink_tax_rate_unique_identifier": 1,
+              "default_linked_food_tax_rate_unique_identifier": 2,
+              "performance": {
+                "cache_settings": {
+                  "items_cache_ttl": 3600,
+                  "categories_cache_ttl": 7200,
+                  "preload_popular_items": true,
+                  "max_cache_size_mb": 256
+                },
+                "ui_optimization": {
+                  "lazy_load_images": true,
+                  "debounce_search_ms": 300,
+                  "virtual_scrolling": true
+                }
+              }
+            },
+            "hardware_interfaces": [
+              {
+                "interface_unique_identifier": "pos1_usb_port_front",
+                "interface_names": {
+                  "de": "USB Port (Vorne)",
+                  "en": "USB Port (Front)",
+                  "fr": "Port USB (Avant)"
+                },
+                "interface_type": "USB",
+                "interface_protocol_details": {}
+              },
+              {
+                "interface_unique_identifier": "pos1_com1",
+                "interface_names": {
+                  "de": "Serieller Port 1 (COM1)",
+                  "en": "Serial Port 1 (COM1)",
+                  "fr": "Port série 1 (COM1)"
+                },
+                "interface_type": "SERIAL",
+                "interface_protocol_details": { 
+                  "baud_rate": 9600, 
+                  "data_bits": 8, 
+                  "parity": "NONE", 
+                  "stop_bits": 1 
+                }
+              },
+              {
+                "interface_unique_identifier": "pos1_ethernet_lan",
+                "interface_names": {
+                  "de": "Ethernet (LAN)",
+                  "en": "Ethernet (LAN)",
+                  "fr": "Ethernet (LAN)"
+                },
+                "interface_type": "ETHERNET",
+                "interface_protocol_details": { 
+                  "ip_address_static": "192.168.1.10", 
+                  "port_number": 8080, 
+                  "subnet_mask": "255.255.255.0", 
+                  "gateway_ip": "192.168.1.1" 
+                }
+              }
+            ],
+            "built_in_displays": [
+              {
+                "display_unique_identifier": "pos1_main_touchscreen_display",
+                "display_names": {
+                  "de": "Haupt Touchscreen Display",
+                  "en": "Main Touchscreen Display",
+                  "fr": "Écran tactile principal"
+                },
+                "display_type": "TOUCHSCREEN",
+                "display_resolution": "1280x800",
+                "is_primary_display": true,
+                "brightness_level_percent": 90,
+                "display_activities": [ 
+                  {
+                    "activity_unique_identifier": "main_sales_activity",
+                    "activity_names": {
+                      "de": "Hauptverkaufsbildschirm",
+                      "en": "Main Sales Screen",
+                      "fr": "Écran de vente principal"
+                    },
+                    "activity_type": "SALES_SCREEN",
+                    "default_starting_activity": true,
+                    "user_interface_elements": [
+                      {
+                        "element_unique_identifier": "receipt_display_area",
+                        "element_type": "RECEIPT_DISPLAY_AREA",
+                        "position_x_pixels": 0,
+                        "position_y_pixels": 0,
+                        "width_pixels": 600,
+                        "height_pixels": 800,
+                        "display_lines_max": 20,
+                        "font_size": "NORMAL"
+                      },
+                      {
+                        "element_unique_identifier": "numeric_keypad",
+                        "element_type": "NUMERIC_KEYPAD",
+                        "position_x_pixels": 600,
+                        "position_y_pixels": 400,
+                        "width_pixels": 200,
+                        "height_pixels": 400,
+                        "key_layout": "STANDARD_CALCULATOR",
+                        "background_color": "#EEEEEE"
+                      },
+                      {
+                        "element_unique_identifier": "category_navigation_panel",
+                        "element_type": "CATEGORY_NAVIGATION_PANEL",
+                        "position_x_pixels": 800,
+                        "position_y_pixels": 0,
+                        "width_pixels": 480,
+                        "height_pixels": 800,
+                        "background_color": "#F5F5F5",
+                        "button_configurations": [
+                          { 
+                            "button_unique_identifier": "btn_softdrinks", 
+                            "linked_category_unique_identifier": 1, 
+                            "button_texts": {
+                              "de": "Softdrinks",
+                              "en": "Soft Drinks",
+                              "fr": "Boissons"
+                            },
+                            "display_x_pos": 0, 
+                            "display_y_pos": 0, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_coffee", 
+                            "linked_category_unique_identifier": 2, 
+                            "button_texts": {
+                              "de": "Kaffee",
+                              "en": "Coffee",
+                              "fr": "Café"
+                            },
+                            "display_x_pos": 120, 
+                            "display_y_pos": 0, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_beer", 
+                            "linked_category_unique_identifier": 3, 
+                            "button_texts": {
+                              "de": "Bier",
+                              "en": "Beer",
+                              "fr": "Bière"
+                            },
+                            "display_x_pos": 240, 
+                            "display_y_pos": 0, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_wine", 
+                            "linked_category_unique_identifier": 4, 
+                            "button_texts": {
+                              "de": "Wein",
+                              "en": "Wine",
+                              "fr": "Vin"
+                            },
+                            "display_x_pos": 360, 
+                            "display_y_pos": 0, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_cocktails", 
+                            "linked_category_unique_identifier": 5, 
+                            "button_texts": {
+                              "de": "Cocktails",
+                              "en": "Cocktails",
+                              "fr": "Cocktails"
+                            },
+                            "display_x_pos": 0, 
+                            "display_y_pos": 80, 
+                            "display_width": 160, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "sep_food", 
+                            "element_type": "SEPARATOR_BUTTON", 
+                            "button_texts": {
+                              "de": "--- SPEISEN ---",
+                              "en": "--- FOOD ---",
+                              "fr": "--- NOURRITURE ---"
+                            },
+                            "display_x_pos": 160, 
+                            "display_y_pos": 80, 
+                            "display_width": 320, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_hummus", 
+                            "linked_category_unique_identifier": 6, 
+                            "button_texts": {
+                              "de": "HUMMUS",
+                              "en": "HUMMUS",
+                              "fr": "HOUMOUS"
+                            },
+                            "display_x_pos": 0, 
+                            "display_y_pos": 160, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_snacks", 
+                            "linked_category_unique_identifier": 7, 
+                            "button_texts": {
+                              "de": "SNACKS",
+                              "en": "SNACKS",
+                              "fr": "COLLATIONS"
+                            },
+                            "display_x_pos": 120, 
+                            "display_y_pos": 160, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_dips", 
+                            "linked_category_unique_identifier": 8, 
+                            "button_texts": {
+                              "de": "DIPS",
+                              "en": "DIPS",
+                              "fr": "SAUCES"
+                            },
+                            "display_x_pos": 240, 
+                            "display_y_pos": 160, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          },
+                          { 
+                            "button_unique_identifier": "btn_main_courses", 
+                            "linked_category_unique_identifier": 9, 
+                            "button_texts": {
+                              "de": "HAUPTSPEISEN",
+                              "en": "MAIN COURSES",
+                              "fr": "PLATS PRINCIPAUX"
+                            },
+                            "display_x_pos": 360, 
+                            "display_y_pos": 160, 
+                            "display_width": 120, 
+                            "display_height": 80 
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "activity_unique_identifier": "category_detail_activity_softdrinks",
+                    "activity_names": {
+                      "de": "Softdrinks Detailansicht",
+                      "en": "Soft Drinks Detail View",
+                      "fr": "Vue détaillée des boissons"
+                    },
+                    "activity_type": "ITEM_SELECTION_SCREEN",
+                    "linked_category_unique_identifier": 1, 
+                    "user_interface_elements": [
+                      {
+                        "element_unique_identifier": "back_button_softdrinks",
+                        "element_type": "BUTTON",
+                        "position_x_pixels": 10, 
+                        "position_y_pixels": 10, 
+                        "width_pixels": 100, 
+                        "height_pixels": 50,
+                        "button_texts": {
+                          "de": "Zurück",
+                          "en": "Back",
+                          "fr": "Retour"
+                        },
+                        "linked_action": { 
+                          "action_type": "NAVIGATE_TO_ACTIVITY", 
+                          "target_activity_unique_identifier": "main_sales_activity" 
+                        }
+                      },
+                      {
+                        "element_unique_identifier": "softdrinks_item_grid",
+                        "element_type": "ITEM_GRID",
+                        "position_x_pixels": 0,
+                        "position_y_pixels": 80,
+                        "width_pixels": 1280,
+                        "height_pixels": 720,
+                        "display_items_from_category_unique_identifier": 1, 
+                        "grid_columns": 5,
+                        "grid_rows": 4,
+                        "item_button_template": { 
+                           "background_color_default": "#ADD8E6", 
+                           "text_color_default": "#000000",
+                           "font_size": "MEDIUM",
+                           "show_price": true
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "connected_peripherals": [
+              {
+                "peripheral_unique_identifier": "pos1_receipt_printer",
+                "peripheral_names": {
+                  "de": "Bon Drucker (Epson)",
+                  "en": "Receipt Printer (Epson)",
+                  "fr": "Imprimante de reçus (Epson)"
+                },
+                "peripheral_type": "PRINTER",
+                "linked_interface_unique_identifier": "pos1_com1",
+                "printer_details": {
+                  "printer_model_name": "Epson TM-T88V",
+                  "is_default_for_receipts": true,
+                  "is_default_for_kitchen_tickets": false,
+                  "paper_width_mm": 80,
+                  "linked_print_format_profile_unique_identifier": "standard_receipt"
+                }
+              },
+              {
+                "peripheral_unique_identifier": "pos1_customer_facing_display",
+                "peripheral_names": {
+                  "de": "Kundendisplay (Vectron C11)",
+                  "en": "Customer Display (Vectron C11)",
+                  "fr": "Affichage client (Vectron C11)"
+                },
+                "peripheral_type": "CUSTOMER_DISPLAY",
+                "linked_interface_unique_identifier": "pos1_usb_port_front",
+                "customer_display_details": {
+                  "display_model_name": "Vectron C11",
+                  "display_type": "GRAPHIC_LCD",
+                  "display_resolution": "1024x768",
+                  "brightness_level_percent": 85,
+                  "idle_timeout_seconds": 60,
+                  "linked_customer_display_layout_profile_unique_identifier": "c11_default_view"
+                }
+              },
+              {
+                "peripheral_unique_identifier": "pos1_kitchen_printer",
+                "peripheral_names": {
+                  "de": "Küchen Drucker (Star TSP)",
+                  "en": "Kitchen Printer (Star TSP)",
+                  "fr": "Imprimante de cuisine (Star TSP)"
+                },
+                "peripheral_type": "PRINTER",
+                "linked_interface_unique_identifier": "pos1_ethernet_lan",
+                "printer_details": {
+                  "printer_model_name": "Star TSP100",
+                  "is_default_for_receipts": false,
+                  "is_default_for_kitchen_tickets": true,
+                  "paper_width_mm": 80,
+                  "linked_print_format_profile_unique_identifier": "kitchen_ticket"
+                }
+              }
+            ],
+            "categories_for_this_pos": [
+              { 
+                "category_unique_identifier": 1, 
+                "category_names": {
+                  "de": "Softdrinks",
+                  "en": "Soft Drinks",
+                  "fr": "Boissons non alcoolisées"
+                },
+                "category_type": "drink", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-05-20T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 2
+                }
+              },
+              { 
+                "category_unique_identifier": 2, 
+                "category_names": {
+                  "de": "Kaffee",
+                  "en": "Coffee",
+                  "fr": "Café"
+                },
+                "category_type": "drink", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 3, 
+                "category_names": {
+                  "de": "Bier",
+                  "en": "Beer",
+                  "fr": "Bière"
+                },
+                "category_type": "drink", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 4, 
+                "category_names": {
+                  "de": "Wein",
+                  "en": "Wine",
+                  "fr": "Vin"
+                },
+                "category_type": "drink", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 5, 
+                "category_names": {
+                  "de": "Cocktails & Mixed Drinks",
+                  "en": "Cocktails & Mixed Drinks",
+                  "fr": "Cocktails et boissons mélangées"
+                },
+                "category_type": "drink", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 6, 
+                "category_names": {
+                  "de": "Hummus-Gerichte",
+                  "en": "Hummus Dishes",
+                  "fr": "Plats de houmous"
+                },
+                "category_type": "food", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 7, 
+                "category_names": {
+                  "de": "Snacks",
+                  "en": "Snacks",
+                  "fr": "Collations"
+                },
+                "category_type": "food", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 8, 
+                "category_names": {
+                  "de": "Dips",
+                  "en": "Dips",
+                  "fr": "Sauces"
+                },
+                "category_type": "food", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              },
+              { 
+                "category_unique_identifier": 9, 
+                "category_names": {
+                  "de": "Hauptspeisen",
+                  "en": "Main Courses",
+                  "fr": "Plats principaux"
+                },
+                "category_type": "food", 
+                "parent_category_unique_identifier": null, 
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              }
+            ],
+            "items_for_this_pos": [
+              {
+                "item_unique_identifier": 1001, 
+                "display_names": {
+                  "menu": {
+                    "de": "Limo Nana",
+                    "en": "Lemon Soda",
+                    "fr": "Soda au citron"
+                  },
+                  "button": {
+                    "de": "Limo Nana",
+                    "en": "Lemon",
+                    "fr": "Citron"
+                  },
+                  "receipt": {
+                    "de": "Limo Nana",
+                    "en": "Lemon Soda",
+                    "fr": "Soda citron"
+                  }
+                },
+                "item_price_value": 3.00, 
+                "pricing_schedules": [
+                  {
+                    "schedule_id": "happy_hour",
+                    "price": 2.40,
+                    "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+                    "valid_time": {"start": "16:00", "end": "18:00"},
+                    "date_range": {
+                      "start": "2024-01-01",
+                      "end": "2024-12-31"
+                    }
+                  }
+                ],
+                "availability_schedule": {
+                  "always_available": true,
+                  "schedules": []
+                },
+                "associated_category_unique_identifier": 1, 
+                "additional_item_attributes": {
+                  "volume_ml": 330,
+                  "calories_per_100ml": 42,
+                  "allergens": []
+                }, 
+                "item_flags": {
+                  "is_sellable": true, 
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": false
+                },
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-03-20T14:15:00Z",
+                  "last_modified_by": "manager@hummusandmore.de",
+                  "version": 3,
+                  "change_log": [
+                    {
+                      "timestamp": "2024-03-20T14:15:00Z",
+                      "user": "manager@hummusandmore.de",
+                      "action": "price_update",
+                      "old_value": 2.80,
+                      "new_value": 3.00,
+                      "reason": "Inflation adjustment"
+                    }
+                  ]
+                }
+              },
+              {
+                "item_unique_identifier": 1002, 
+                "display_names": {
+                  "menu": {
+                    "de": "Mineralwasser 0,33l",
+                    "en": "Mineral Water 0.33l",
+                    "fr": "Eau minérale 0,33l"
+                  },
+                  "button": {
+                    "de": "Min.Wasser 0,33l",
+                    "en": "Min.Water 0.33l",
+                    "fr": "Eau min. 0,33l"
+                  },
+                  "receipt": {
+                    "de": "Min.Wasser 0,33l Fl.",
+                    "en": "Min.Water 0.33l Btl.",
+                    "fr": "Eau min. 0,33l bout."
+                  }
+                },
+                "item_price_value": 3.20, 
+                "associated_category_unique_identifier": 1, 
+                "additional_item_attributes": {
+                  "volume_in_liters": 0.33, 
+                  "is_bottle": true,
+                  "deposit_amount": 0.25
+                }, 
+                "item_flags": {
+                  "is_sellable": true, 
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": true
+                },
+                "audit_trail": {
+                  "created_at": "2024-01-15T10:30:00Z",
+                  "created_by": "admin@hummusandmore.de",
+                  "last_modified_at": "2024-01-15T10:30:00Z",
+                  "last_modified_by": "admin@hummusandmore.de",
+                  "version": 1
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

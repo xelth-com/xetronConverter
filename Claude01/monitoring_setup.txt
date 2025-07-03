@@ -1,0 +1,647 @@
+# monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # eckasse API server
+  - job_name: 'eckasse-api'
+    static_configs:
+      - targets: ['eckasse-api-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - eckasse
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: eckasse-api-service
+
+  # Node exporter for system metrics
+  - job_name: 'node-exporter'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        target_label: __address__
+        replacement: '${1}:9100'
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+
+  # PostgreSQL metrics
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+---
+
+# monitoring/alert_rules.yml
+groups:
+  - name: eckasse.rules
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(eckasse_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+
+      # API Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(eckasse_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # Migration Failures
+      - alert: MigrationFailures
+        expr: increase(eckasse_migration_failures_total[15m]) > 5
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Multiple migration failures detected"
+          description: "{{ $value }} migration failures in the last 15 minutes"
+
+      # Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%"
+
+      # Disk Space
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10%"
+
+      # Pod Restart Rate
+      - alert: HighPodRestartRate
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod restarting frequently"
+          description: "Pod {{ $labels.pod }} is restarting at a rate of {{ $value }} per second"
+
+      # Service Down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down"
+
+---
+
+# monitoring/grafana-dashboard.json
+{
+  "dashboard": {
+    "id": null,
+    "title": "eckasse OOP-POS-MDF Monitoring",
+    "tags": ["eckasse", "pos", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(eckasse_http_requests_total[5m])",
+            "legendFormat": "{{method}} {{status}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "xAxis": {"show": true},
+        "yAxes": [
+          {
+            "label": "Requests/sec",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(eckasse_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(eckasse_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "50th percentile"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "yAxes": [
+          {
+            "label": "Seconds",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Migration Activity",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(eckasse_migrations_total[5m])",
+            "legendFormat": "Successful"
+          },
+          {
+            "expr": "rate(eckasse_migration_failures_total[5m])",
+            "legendFormat": "Failed"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Validation Activity",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(eckasse_validations_total[5m])",
+            "legendFormat": "{{result}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "System Resources",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes / 1024 / 1024",
+            "legendFormat": "Memory (MB)"
+          },
+          {
+            "expr": "rate(process_cpu_seconds_total[5m]) * 100",
+            "legendFormat": "CPU %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Active Configurations",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "eckasse_configurations_total"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "Cache Hit Rate",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "rate(eckasse_cache_hits_total[5m]) / (rate(eckasse_cache_hits_total[5m]) + rate(eckasse_cache_misses_total[5m])) * 100"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 24},
+        "format": "percent"
+      },
+      {
+        "id": 8,
+        "title": "Error Rate",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "rate(eckasse_http_requests_total{status=~\"5..\"}[5m]) / rate(eckasse_http_requests_total[5m]) * 100"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 24},
+        "format": "percent",
+        "thresholds": [
+          {"color": "green", "value": 0},
+          {"color": "yellow", "value": 1},
+          {"color": "red", "value": 5}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Active Users",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "eckasse_active_sessions"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 24}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}
+
+---
+
+# monitoring/docker-compose.monitoring.yml
+version: '3.8'
+
+services:
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: eckasse-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: eckasse-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/eckasse.json
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # AlertManager
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: eckasse-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - monitoring
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: eckasse-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+
+  # Redis Exporter
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: eckasse-redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - monitoring
+    depends_on:
+      - redis
+
+  # PostgreSQL Exporter
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: eckasse-postgres-exporter
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://eckasse:eckasse_secure_password@postgres:5432/eckasse?sslmode=disable
+    networks:
+      - monitoring
+    depends_on:
+      - postgres
+
+  # Jaeger for distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: eckasse-jaeger
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - monitoring
+
+  # ELK Stack for centralized logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: eckasse-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - monitoring
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    container_name: eckasse-logstash
+    volumes:
+      - ./monitoring/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"
+    networks:
+      - monitoring
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: eckasse-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - monitoring
+    depends_on:
+      - elasticsearch
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+  elasticsearch_data:
+
+networks:
+  monitoring:
+    driver: bridge
+
+---
+
+# monitoring/alertmanager.yml
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@eckasse.com'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+
+receivers:
+  - name: 'web.hook'
+    email_configs:
+      - to: 'admin@eckasse.com'
+        subject: 'eckasse Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Details:
+          {{ range .Labels.SortedPairs }} - {{ .Name }} = {{ .Value }}
+          {{ end }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts'
+        title: 'eckasse Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+---
+
+# monitoring/logstash.conf
+input {
+  beats {
+    port => 5044
+  }
+  
+  http {
+    port => 8080
+    codec => json
+  }
+}
+
+filter {
+  if [fields][service] == "eckasse" {
+    json {
+      source => "message"
+    }
+    
+    date {
+      match => [ "timestamp", "ISO8601" ]
+    }
+    
+    mutate {
+      add_field => { "[@metadata][index]" => "eckasse-%{+YYYY.MM.dd}" }
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["elasticsearch:9200"]
+    index => "%{[@metadata][index]}"
+  }
+  
+  stdout {
+    codec => rubydebug
+  }
+}
+
+---
+
+# monitoring/grafana-datasources.yml
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    
+  - name: Elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: "eckasse-*"
+    timeField: "@timestamp"
+
+---
+
+# monitoring/grafana-dashboards.yml
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards
+
+---
+
+# monitoring/health-check.sh
+#!/bin/bash
+
+# Health check script for eckasse monitoring stack
+
+echo "🔍 Checking eckasse monitoring stack health..."
+
+# Check if all services are running
+services=("prometheus" "grafana" "alertmanager" "node-exporter" "redis-exporter" "postgres-exporter")
+
+for service in "${services[@]}"; do
+    if docker ps | grep -q "eckasse-$service"; then
+        echo "✅ $service is running"
+    else
+        echo "❌ $service is not running"
+        exit 1
+    fi
+done
+
+# Check service endpoints
+endpoints=(
+    "http://localhost:9090/-/healthy prometheus"
+    "http://localhost:3001/api/health grafana"
+    "http://localhost:9093/-/healthy alertmanager"
+    "http://localhost:9100/metrics node-exporter"
+    "http://localhost:9121/metrics redis-exporter"
+    "http://localhost:9187/metrics postgres-exporter"
+)
+
+for endpoint in "${endpoints[@]}"; do
+    url=$(echo $endpoint | cut -d' ' -f1)
+    name=$(echo $endpoint | cut -d' ' -f2)
+    
+    if curl -f -s "$url" > /dev/null; then
+        echo "✅ $name endpoint is healthy"
+    else
+        echo "❌ $name endpoint is not responding"
+        exit 1
+    fi
+done
+
+echo "🎉 All monitoring services are healthy!"
+
+---
+
+# monitoring/backup-monitoring.sh
+#!/bin/bash
+
+# Backup monitoring data
+
+BACKUP_DIR="/backups/monitoring/$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$BACKUP_DIR"
+
+echo "📦 Creating monitoring backup in $BACKUP_DIR..."
+
+# Backup Prometheus data
+docker run --rm -v eckasse_prometheus_data:/data -v "$BACKUP_DIR":/backup alpine \
+    tar czf /backup/prometheus-data.tar.gz -C /data .
+
+# Backup Grafana data
+docker run --rm -v eckasse_grafana_data:/data -v "$BACKUP_DIR":/backup alpine \
+    tar czf /backup/grafana-data.tar.gz -C /data .
+
+# Backup AlertManager data
+docker run --rm -v eckasse_alertmanager_data:/data -v "$BACKUP_DIR":/backup alpine \
+    tar czf /backup/alertmanager-data.tar.gz -C /data .
+
+# Backup configurations
+cp -r ./monitoring "$BACKUP_DIR/configs"
+
+echo "✅ Monitoring backup completed: $BACKUP_DIR"
+
+# Cleanup old backups (keep last 7 days)
+find /backups/monitoring -type d -mtime +7 -exec rm -rf {} \;
+
+echo "🧹 Old backups cleaned up"

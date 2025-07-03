@@ -90,7 +90,7 @@
                 "display_resolution": "1280x800",
                 "is_primary_display": true,
                 "brightness_level_percent": 90,
-                "display_activities": [ 
+                "display_activities": [
                   {
                     "activity_unique_identifier": "main_sales_activity",
                     "activity_name": "Hauptverkaufsbildschirm",
@@ -144,7 +144,7 @@
                     "activity_unique_identifier": "category_detail_activity_softdrinks",
                     "activity_name": "Softdrinks Detailansicht",
                     "activity_type": "ITEM_SELECTION_SCREEN",
-                    "linked_category_unique_identifier": 1, 
+                    "linked_category_unique_identifier": 1,
                     "user_interface_elements": [
                       {
                         "element_unique_identifier": "back_button_softdrinks",
@@ -160,11 +160,11 @@
                         "position_y_pixels": 80,
                         "width_pixels": 1280,
                         "height_pixels": 720,
-                        "display_items_from_category_unique_identifier": 1, 
+                        "display_items_from_category_unique_identifier": 1,
                         "grid_columns": 5,
                         "grid_rows": 4,
-                        "item_button_template": { 
-                           "background_color_default": "#ADD8E6", 
+                        "item_button_template": {
+                           "background_color_default": "#ADD8E6",
                            "text_color_default": "#000000",
                            "font_size": "MEDIUM",
                            "show_price": true
@@ -172,7 +172,6 @@
                       }
                     ]
                   }
-                  
                 ]
               }
             ],
@@ -182,7 +181,7 @@
                 "peripheral_name": "Receipt Printer (Epson)",
                 "peripheral_type": "PRINTER",
                 "linked_interface_unique_identifier": "pos1_com1",
-                "printer_details": {
+                "peripheral_specific_details": {
                   "printer_model_name": "Epson TM-T88V",
                   "is_default_for_receipts": true,
                   "is_default_for_kitchen_tickets": false,
@@ -195,7 +194,7 @@
                 "peripheral_name": "Customer Display (Vectron C11)",
                 "peripheral_type": "CUSTOMER_DISPLAY",
                 "linked_interface_unique_identifier": "pos1_usb_port_front",
-                "customer_display_details": {
+                "peripheral_specific_details": {
                   "display_model_name": "Vectron C11",
                   "display_type": "GRAPHIC_LCD",
                   "display_resolution": "1024x768",
@@ -209,7 +208,7 @@
                 "peripheral_name": "Kitchen Printer (Star TSP)",
                 "peripheral_type": "PRINTER",
                 "linked_interface_unique_identifier": "pos1_ethernet_lan",
-                "printer_details": {
+                "peripheral_specific_details": {
                   "printer_model_name": "Star TSP100",
                   "is_default_for_receipts": false,
                   "is_default_for_kitchen_tickets": true,
@@ -423,6 +422,16 @@
               {
                 "item_unique_identifier": 2305, "menu_display_name": "Hamburger", "button_display_name": "Hamburger", "receipt_print_name": "Hauptspeise: Hamburger",
                 "item_price_value": 14.00, "associated_category_unique_identifier": 9, "additional_item_attributes": {}, "item_flags": {"is_sellable": true, "has_negative_price": false}
+              }
+            ],
+            "pos_device_display_layouts": [ 
+              {
+                "display_layout_unique_identifier": 1,
+                "display_layout_name": "Main Menu Display",
+                "display_layout_type": "MAIN_MENU",
+                "category_button_configurations": [
+    
+                ]
               }
             ]
           }

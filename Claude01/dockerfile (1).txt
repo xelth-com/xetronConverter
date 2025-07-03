@@ -1,0 +1,255 @@
+# Multi-stage Dockerfile for eckasse OOP-POS-MDF Tools
+# 
+# Stage 1: Build stage
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for building)
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Run tests and build validation
+RUN npm run test && npm run validate:schema
+
+# Stage 2: Runtime stage
+FROM node:18-alpine AS runtime
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S eckasse && \
+    adduser -S eckasse -u 1001
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application from builder stage
+COPY --from=builder --chown=eckasse:eckasse /app/lib ./lib
+COPY --from=builder --chown=eckasse:eckasse /app/bin ./bin
+COPY --from=builder --chown=eckasse:eckasse /app/schemas ./schemas
+COPY --from=builder --chown=eckasse:eckasse /app/migrations ./migrations
+COPY --from=builder --chown=eckasse:eckasse /app/examples ./examples
+
+# Copy documentation
+COPY --chown=eckasse:eckasse README.md LICENSE CHANGELOG.md ./
+
+# Create directories for data persistence
+RUN mkdir -p /app/data /app/config /app/logs && \
+    chown -R eckasse:eckasse /app/data /app/config /app/logs
+
+# Set up global CLI access
+RUN npm link
+
+# Switch to non-root user
+USER eckasse
+
+# Expose port for potential web interface
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node -e "console.log('OK')" || exit 1
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV LOG_LEVEL=info
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Default command
+CMD ["eckasse", "--help"]
+
+# Labels for metadata
+LABEL maintainer="eckasse Development Team <dev@eckasse.com>"
+LABEL version="2.0.0"
+LABEL description="eckasse OOP-POS-MDF Configuration Tools"
+LABEL org.opencontainers.image.source="https://github.com/eckasse/oop-pos-mdf"
+LABEL org.opencontainers.image.documentation="https://github.com/eckasse/oop-pos-mdf#readme"
+LABEL org.opencontainers.image.licenses="EUPL-1.2"
+
+---
+
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Main eckasse CLI service
+  eckasse-cli:
+    build: .
+    image: eckasse/oop-pos-mdf:2.0.0
+    container_name: eckasse-cli
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+    command: ["eckasse", "--help"]
+
+  # Development environment with hot reload
+  eckasse-dev:
+    build:
+      context: .
+      target: builder
+    image: eckasse/oop-pos-mdf:2.0.0-dev
+    container_name: eckasse-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    command: ["npm", "run", "test:watch"]
+    profiles:
+      - dev
+
+  # JSON Schema validator service
+  schema-validator:
+    image: eckasse/oop-pos-mdf:2.0.0
+    container_name: eckasse-validator
+    volumes:
+      - ./data:/app/data:ro
+      - ./config:/app/config:ro
+    command: ["eckasse", "validate", "/app/data/config.json"]
+    profiles:
+      - validation
+
+  # Migration service
+  migration-service:
+    image: eckasse/oop-pos-mdf:2.0.0
+    container_name: eckasse-migrator
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config:ro
+    environment:
+      - BACKUP_ENABLED=true
+    command: ["eckasse", "migrate", "/app/data/old-config.json", "--backup", "--output", "/app/data/migrated-config.json"]
+    profiles:
+      - migration
+
+  # Web interface (future feature)
+  eckasse-web:
+    image: eckasse/oop-pos-mdf:2.0.0
+    container_name: eckasse-web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    environment:
+      - NODE_ENV=production
+      - WEB_INTERFACE=true
+    command: ["node", "lib/web-server.js"]
+    profiles:
+      - web
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: eckasse-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    profiles:
+      - cache
+
+  # PostgreSQL for audit trail storage (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: eckasse-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=eckasse
+      - POSTGRES_USER=eckasse
+      - POSTGRES_PASSWORD=eckasse_secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    profiles:
+      - database
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  default:
+    name: eckasse-network
+
+---
+
+# .dockerignore
+node_modules
+npm-debug.log*
+.nyc_output
+coverage
+.coverage
+*.log
+.git
+.gitignore
+README.md
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+tests
+docs
+examples/*.json
+.DS_Store
+Thumbs.db
+
+---
+
+# docker-entrypoint.sh
+#!/bin/sh
+set -e
+
+# Initialize logging
+echo "Starting eckasse OOP-POS-MDF Tools v2.0.0"
+echo "Container started at $(date)"
+
+# Create necessary directories
+mkdir -p /app/data /app/config /app/logs
+
+# Set permissions
+chown -R eckasse:eckasse /app/data /app/config /app/logs
+
+# Check if configuration file exists
+if [ -f "/app/config/default.json" ]; then
+    echo "Using configuration from /app/config/default.json"
+    export ECKASSE_CONFIG_PATH="/app/config/default.json"
+fi
+
+# Run schema validation on startup if AUTO_VALIDATE is set
+if [ "$AUTO_VALIDATE" = "true" ] && [ -f "/app/data/config.json" ]; then
+    echo "Running automatic validation on startup..."
+    eckasse validate /app/data/config.json
+fi
+
+# Run migration on startup if AUTO_MIGRATE is set
+if [ "$AUTO_MIGRATE" = "true" ] && [ -f "/app/data/old-config.json" ]; then
+    echo "Running automatic migration on startup..."
+    eckasse migrate /app/data/old-config.json --output /app/data/migrated-config.json
+fi
+
+# Execute the main command
+exec "$@"

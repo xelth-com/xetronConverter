@@ -1,0 +1,767 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.eckasse.com/oop-pos-mdf/v2.0.0/schema.json",
+  "title": "Enhanced OOP-POS-MDF Configuration",
+  "description": "Schema for Enhanced Object-Oriented Point-of-Sale Master Data Format v2.0.0",
+  "type": "object",
+  "required": ["company_details"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "company_details": {
+      "type": "object",
+      "required": ["company_unique_identifier", "company_full_name", "meta_information", "branches"],
+      "properties": {
+        "company_unique_identifier": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "company_full_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "meta_information": {
+          "type": "object",
+          "required": ["format_version"],
+          "properties": {
+            "format_version": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            },
+            "previous_versions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+\\.\\d+$"
+              }
+            },
+            "schema_validation": {
+              "type": "object",
+              "properties": {
+                "required_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "field_constraints": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["integer", "decimal", "string", "boolean"]
+                      },
+                      "min": {
+                        "type": "number"
+                      },
+                      "max": {
+                        "type": "number"
+                      },
+                      "precision": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "migration_info": {
+              "type": "object",
+              "properties": {
+                "from_version": {
+                  "type": "string",
+                  "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                },
+                "migration_scripts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["from_version", "to_version", "migration_script"],
+                    "properties": {
+                      "from_version": {
+                        "type": "string",
+                        "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                      },
+                      "to_version": {
+                        "type": "string",
+                        "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                      },
+                      "migration_script": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "breaking_changes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "backward_compatibility": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "auto_migration": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "date_generated": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "generated_by": {
+              "type": "string"
+            },
+            "default_currency_symbol": {
+              "type": "string",
+              "maxLength": 3
+            },
+            "default_language": {
+              "type": "string",
+              "pattern": "^[a-z]{2}$"
+            },
+            "supported_languages": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z]{2}$"
+              },
+              "minItems": 1
+            },
+            "audit_trail": {
+              "$ref": "#/definitions/audit_trail"
+            }
+          }
+        },
+        "global_configurations": {
+          "type": "object",
+          "properties": {
+            "tax_rates_definitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["tax_rate_unique_identifier", "tax_rate_names", "rate_percentage", "fiscal_mapping_type"],
+                "properties": {
+                  "tax_rate_unique_identifier": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "tax_rate_names": {
+                    "$ref": "#/definitions/multilingual_text"
+                  },
+                  "rate_percentage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "fiscal_mapping_type": {
+                    "type": "string",
+                    "enum": ["NORMAL", "REDUCED", "ZERO", "EXEMPT"]
+                  },
+                  "valid_from": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "valid_until": {
+                    "type": ["string", "null"],
+                    "format": "date"
+                  }
+                }
+              }
+            },
+            "main_groups_definitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["main_group_unique_identifier", "main_group_names"],
+                "properties": {
+                  "main_group_unique_identifier": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "main_group_names": {
+                    "$ref": "#/definitions/multilingual_text"
+                  }
+                }
+              }
+            },
+            "payment_methods_definitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["payment_method_unique_identifier", "payment_method_names", "payment_method_type"],
+                "properties": {
+                  "payment_method_unique_identifier": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "payment_method_names": {
+                    "$ref": "#/definitions/multilingual_text"
+                  },
+                  "payment_method_type": {
+                    "type": "string",
+                    "enum": ["CASH", "CARD", "CREDIT_CARD", "MOBILE_PAYMENT", "VOUCHER", "CRYPTOCURRENCY"]
+                  }
+                }
+              }
+            },
+            "promotions_definitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["promotion_id", "names", "type", "conditions", "discount"],
+                "properties": {
+                  "promotion_id": {
+                    "type": "string"
+                  },
+                  "names": {
+                    "$ref": "#/definitions/multilingual_text"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["percentage_discount", "fixed_discount", "quantity_discount", "buy_x_get_y"]
+                  },
+                  "conditions": {
+                    "type": "object",
+                    "properties": {
+                      "min_quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "applicable_categories": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        }
+                      },
+                      "applicable_items": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  },
+                  "discount": {
+                    "type": "object",
+                    "required": ["type", "value"],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["percentage", "fixed_amount"]
+                      },
+                      "value": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "max_discount_amount": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "validity": {
+                    "type": "object",
+                    "properties": {
+                      "start_date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "end_date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "days_of_week": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                        }
+                      },
+                      "time_range": {
+                        "type": "object",
+                        "properties": {
+                          "start": {
+                            "type": "string",
+                            "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                          },
+                          "end": {
+                            "type": "string",
+                            "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "workflows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["workflow_id", "name", "trigger", "actions"],
+                "properties": {
+                  "workflow_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "object",
+                    "required": ["type"],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["schedule", "inventory_threshold", "event", "manual"]
+                      }
+                    }
+                  },
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["type"],
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "is_active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "integrations": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string"
+                  },
+                  "is_enabled": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "security_settings": {
+              "type": "object",
+              "properties": {
+                "encryption": {
+                  "type": "object",
+                  "properties": {
+                    "at_rest": {
+                      "type": "boolean"
+                    },
+                    "in_transit": {
+                      "type": "boolean"
+                    },
+                    "algorithm": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "access_control": {
+                  "type": "object",
+                  "properties": {
+                    "session_timeout": {
+                      "type": "integer",
+                      "minimum": 60
+                    },
+                    "max_failed_attempts": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "lockout_duration": {
+                      "type": "integer",
+                      "minimum": 60
+                    },
+                    "require_2fa": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "data_privacy": {
+                  "type": "object",
+                  "properties": {
+                    "gdpr_compliance": {
+                      "type": "boolean"
+                    },
+                    "data_retention_days": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "anonymization_rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "after_days": {
+                            "type": "integer"
+                          },
+                          "method": {
+                            "type": "string",
+                            "enum": ["hash", "anonymize", "delete"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "branches": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["branch_unique_identifier", "branch_names", "point_of_sale_devices"],
+            "properties": {
+              "branch_unique_identifier": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "branch_names": {
+                "$ref": "#/definitions/multilingual_text"
+              },
+              "branch_address": {
+                "type": "string"
+              },
+              "point_of_sale_devices": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["pos_device_unique_identifier", "pos_device_names", "pos_device_type", "pos_device_external_number", "categories_for_this_pos", "items_for_this_pos"],
+                  "properties": {
+                    "pos_device_unique_identifier": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "pos_device_names": {
+                      "$ref": "#/definitions/multilingual_text"
+                    },
+                    "pos_device_type": {
+                      "type": "string",
+                      "enum": ["DESKTOP", "TABLET", "MOBILE", "KIOSK", "HANDHELD"]
+                    },
+                    "pos_device_external_number": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9999
+                    },
+                    "pos_device_settings": {
+                      "type": "object",
+                      "properties": {
+                        "default_currency_identifier": {
+                          "type": "string"
+                        },
+                        "default_linked_drink_tax_rate_unique_identifier": {
+                          "type": "integer"
+                        },
+                        "default_linked_food_tax_rate_unique_identifier": {
+                          "type": "integer"
+                        },
+                        "performance": {
+                          "type": "object",
+                          "properties": {
+                            "cache_settings": {
+                              "type": "object",
+                              "properties": {
+                                "items_cache_ttl": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "categories_cache_ttl": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "preload_popular_items": {
+                                  "type": "boolean"
+                                },
+                                "max_cache_size_mb": {
+                                  "type": "integer",
+                                  "minimum": 1
+                                }
+                              }
+                            },
+                            "ui_optimization": {
+                              "type": "object",
+                              "properties": {
+                                "lazy_load_images": {
+                                  "type": "boolean"
+                                },
+                                "debounce_search_ms": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "virtual_scrolling": {
+                                  "type": "boolean"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "categories_for_this_pos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["category_unique_identifier", "category_names", "category_type"],
+                        "properties": {
+                          "category_unique_identifier": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "category_names": {
+                            "$ref": "#/definitions/multilingual_text"
+                          },
+                          "category_type": {
+                            "type": "string",
+                            "enum": ["drink", "food", "service", "other"]
+                          },
+                          "parent_category_unique_identifier": {
+                            "type": ["integer", "null"]
+                          },
+                          "default_linked_main_group_unique_identifier": {
+                            "type": "integer"
+                          },
+                          "audit_trail": {
+                            "$ref": "#/definitions/audit_trail"
+                          }
+                        }
+                      }
+                    },
+                    "items_for_this_pos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["item_unique_identifier", "display_names", "item_price_value", "associated_category_unique_identifier", "item_flags", "audit_trail"],
+                        "properties": {
+                          "item_unique_identifier": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "display_names": {
+                            "type": "object",
+                            "required": ["menu", "button", "receipt"],
+                            "properties": {
+                              "menu": {
+                                "$ref": "#/definitions/multilingual_text"
+                              },
+                              "button": {
+                                "$ref": "#/definitions/multilingual_text"
+                              },
+                              "receipt": {
+                                "$ref": "#/definitions/multilingual_text"
+                              }
+                            }
+                          },
+                          "item_price_value": {
+                            "type": "number",
+                            "minimum": 0,
+                            "multipleOf": 0.01
+                          },
+                          "pricing_schedules": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "required": ["schedule_id", "price"],
+                              "properties": {
+                                "schedule_id": {
+                                  "type": "string"
+                                },
+                                "price": {
+                                  "type": "number",
+                                  "minimum": 0
+                                },
+                                "valid_days": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                                  }
+                                },
+                                "valid_time": {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "string",
+                                      "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                                    },
+                                    "end": {
+                                      "type": "string",
+                                      "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+                                    }
+                                  }
+                                },
+                                "date_range": {
+                                  "type": "object",
+                                  "properties": {
+                                    "start": {
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "end": {
+                                      "type": "string",
+                                      "format": "date"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "availability_schedule": {
+                            "type": "object",
+                            "properties": {
+                              "always_available": {
+                                "type": "boolean"
+                              },
+                              "schedules": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              }
+                            }
+                          },
+                          "associated_category_unique_identifier": {
+                            "type": "integer"
+                          },
+                          "additional_item_attributes": {
+                            "type": "object"
+                          },
+                          "item_flags": {
+                            "type": "object",
+                            "required": ["is_sellable", "has_negative_price"],
+                            "properties": {
+                              "is_sellable": {
+                                "type": "boolean"
+                              },
+                              "has_negative_price": {
+                                "type": "boolean"
+                              },
+                              "requires_age_verification": {
+                                "type": "boolean"
+                              },
+                              "is_organic": {
+                                "type": "boolean"
+                              }
+                            }
+                          },
+                          "audit_trail": {
+                            "$ref": "#/definitions/audit_trail"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "multilingual_text": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z]{2}$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "audit_trail": {
+      "type": "object",
+      "required": ["created_at", "created_by", "last_modified_at", "last_modified_by", "version"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string",
+          "format": "email"
+        },
+        "last_modified_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_modified_by": {
+          "type": "string",
+          "format": "email"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "change_log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["timestamp", "user", "action"],
+            "properties": {
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "user": {
+                "type": "string",
+                "format": "email"
+              },
+              "action": {
+                "type": "string"
+              },
+              "old_value": {},
+              "new_value": {},
+              "reason": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "affected_components": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

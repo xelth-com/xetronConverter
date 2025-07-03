@@ -1,0 +1,1073 @@
+// examples/restaurant-fine-dining.json
+{
+  "$schema": "https://schemas.eckasse.com/oop-pos-mdf/v2.0.0/schema.json",
+  "company_details": {
+    "company_unique_identifier": 1,
+    "company_full_name": "Château Bellevue Fine Dining",
+    "meta_information": {
+      "format_version": "2.0.0",
+      "previous_versions": [],
+      "date_generated": "2024-05-20T14:30:00Z",
+      "generated_by": "eckasse-configurator-v2.0.0",
+      "default_currency_symbol": "€",
+      "default_language": "de",
+      "supported_languages": ["de", "en", "fr"],
+      "audit_trail": {
+        "created_at": "2024-05-20T14:30:00Z",
+        "created_by": "chef@chateaubellevue.com",
+        "last_modified_at": "2024-05-20T14:30:00Z",
+        "last_modified_by": "chef@chateaubellevue.com",
+        "version": 1,
+        "change_log": []
+      }
+    },
+    "global_configurations": {
+      "tax_rates_definitions": [
+        {
+          "tax_rate_unique_identifier": 1,
+          "tax_rate_names": {
+            "de": "Standard (19%)",
+            "en": "Standard (19%)",
+            "fr": "Standard (19%)"
+          },
+          "rate_percentage": 19.0,
+          "fiscal_mapping_type": "NORMAL",
+          "valid_from": "2024-01-01",
+          "valid_until": null
+        },
+        {
+          "tax_rate_unique_identifier": 2,
+          "tax_rate_names": {
+            "de": "Ermäßigt (7%)",
+            "en": "Reduced (7%)",
+            "fr": "Réduit (7%)"
+          },
+          "rate_percentage": 7.0,
+          "fiscal_mapping_type": "REDUCED",
+          "valid_from": "2024-01-01",
+          "valid_until": null
+        }
+      ],
+      "main_groups_definitions": [
+        {
+          "main_group_unique_identifier": 1,
+          "main_group_names": {
+            "de": "Getränke",
+            "en": "Beverages",
+            "fr": "Boissons"
+          }
+        },
+        {
+          "main_group_unique_identifier": 2,
+          "main_group_names": {
+            "de": "Speisen",
+            "en": "Cuisine",
+            "fr": "Mets"
+          }
+        }
+      ],
+      "payment_methods_definitions": [
+        {
+          "payment_method_unique_identifier": 1,
+          "payment_method_names": {
+            "de": "Bar",
+            "en": "Cash",
+            "fr": "Espèces"
+          },
+          "payment_method_type": "CASH"
+        },
+        {
+          "payment_method_unique_identifier": 2,
+          "payment_method_names": {
+            "de": "EC-Karte",
+            "en": "Debit Card",
+            "fr": "Carte de débit"
+          },
+          "payment_method_type": "CARD"
+        },
+        {
+          "payment_method_unique_identifier": 3,
+          "payment_method_names": {
+            "de": "Kreditkarte",
+            "en": "Credit Card",
+            "fr": "Carte de crédit"
+          },
+          "payment_method_type": "CREDIT_CARD"
+        }
+      ],
+      "promotions_definitions": [
+        {
+          "promotion_id": "wine_pairing_special",
+          "names": {
+            "de": "Weinbegleitung Spezial",
+            "en": "Wine Pairing Special",
+            "fr": "Accord mets et vins spécial"
+          },
+          "type": "percentage_discount",
+          "conditions": {
+            "min_quantity": 1,
+            "applicable_categories": [4],
+            "applicable_items": []
+          },
+          "discount": {
+            "type": "percentage",
+            "value": 15.0,
+            "max_discount_amount": 25.00
+          },
+          "validity": {
+            "start_date": "2024-01-01",
+            "end_date": "2024-12-31",
+            "days_of_week": ["friday", "saturday"],
+            "time_range": {"start": "18:00", "end": "22:00"}
+          },
+          "is_active": true
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_id": "evening_preparation",
+          "name": "Abendvorbereitung",
+          "trigger": {"type": "schedule", "time": "15:00"},
+          "actions": [
+            {"type": "generate_prep_list"},
+            {"type": "check_inventory"},
+            {"type": "send_notification", "recipients": ["kitchen@chateaubellevue.com"]}
+          ],
+          "is_active": true
+        }
+      ],
+      "integrations": {
+        "accounting_system": {
+          "provider": "DATEV",
+          "api_endpoint": "https://api.datev.de/v1",
+          "credentials_ref": "datev_creds",
+          "sync_schedule": "daily_23:30",
+          "is_enabled": true
+        },
+        "inventory_management": {
+          "provider": "custom_fine_dining",
+          "webhook_url": "https://inventory.chateaubellevue.com/pos-updates",
+          "real_time_sync": true,
+          "is_enabled": true
+        },
+        "reservation_system": {
+          "provider": "opentable",
+          "api_key_ref": "opentable_key",
+          "is_enabled": true
+        }
+      },
+      "security_settings": {
+        "encryption": {
+          "at_rest": true,
+          "in_transit": true,
+          "algorithm": "AES-256"
+        },
+        "access_control": {
+          "session_timeout": 3600,
+          "max_failed_attempts": 3,
+          "lockout_duration": 900,
+          "require_2fa": true
+        },
+        "data_privacy": {
+          "gdpr_compliance": true,
+          "data_retention_days": 2555,
+          "anonymization_rules": [
+            {
+              "field": "customer_data",
+              "after_days": 90,
+              "method": "hash"
+            }
+          ]
+        }
+      }
+    },
+    "branches": [
+      {
+        "branch_unique_identifier": 1,
+        "branch_names": {
+          "de": "Hauptrestaurant",
+          "en": "Main Restaurant",
+          "fr": "Restaurant principal"
+        },
+        "branch_address": "Gourmetstraße 1, 80333 München",
+        "point_of_sale_devices": [
+          {
+            "pos_device_unique_identifier": 1,
+            "pos_device_names": {
+              "de": "Hauptkasse (Empfang)",
+              "en": "Main POS (Reception)",
+              "fr": "Caisse principale (Réception)"
+            },
+            "pos_device_type": "DESKTOP",
+            "pos_device_external_number": 1,
+            "pos_device_settings": {
+              "default_currency_identifier": "€",
+              "default_linked_drink_tax_rate_unique_identifier": 1,
+              "default_linked_food_tax_rate_unique_identifier": 2,
+              "performance": {
+                "cache_settings": {
+                  "items_cache_ttl": 7200,
+                  "categories_cache_ttl": 14400,
+                  "preload_popular_items": true,
+                  "max_cache_size_mb": 512
+                },
+                "ui_optimization": {
+                  "lazy_load_images": true,
+                  "debounce_search_ms": 200,
+                  "virtual_scrolling": true
+                }
+              }
+            },
+            "categories_for_this_pos": [
+              {
+                "category_unique_identifier": 1,
+                "category_names": {
+                  "de": "Aperitifs",
+                  "en": "Aperitifs",
+                  "fr": "Apéritifs"
+                },
+                "category_type": "drink",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 2,
+                "category_names": {
+                  "de": "Champagner & Schaumweine",
+                  "en": "Champagne & Sparkling",
+                  "fr": "Champagne & Mousseux"
+                },
+                "category_type": "drink",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 3,
+                "category_names": {
+                  "de": "Weißweine",
+                  "en": "White Wines",
+                  "fr": "Vins blancs"
+                },
+                "category_type": "drink",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 4,
+                "category_names": {
+                  "de": "Rotweine",
+                  "en": "Red Wines",
+                  "fr": "Vins rouges"
+                },
+                "category_type": "drink",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 5,
+                "category_names": {
+                  "de": "Amuse-Bouche",
+                  "en": "Amuse-Bouche",
+                  "fr": "Amuse-Bouche"
+                },
+                "category_type": "food",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 6,
+                "category_names": {
+                  "de": "Vorspeisen",
+                  "en": "Appetizers",
+                  "fr": "Entrées"
+                },
+                "category_type": "food",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 7,
+                "category_names": {
+                  "de": "Hauptgänge",
+                  "en": "Main Courses",
+                  "fr": "Plats principaux"
+                },
+                "category_type": "food",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 8,
+                "category_names": {
+                  "de": "Desserts",
+                  "en": "Desserts",
+                  "fr": "Desserts"
+                },
+                "category_type": "food",
+                "parent_category_unique_identifier": null,
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1
+                }
+              }
+            ],
+            "items_for_this_pos": [
+              {
+                "item_unique_identifier": 1001,
+                "display_names": {
+                  "menu": {
+                    "de": "Dom Pérignon Vintage 2012",
+                    "en": "Dom Pérignon Vintage 2012",
+                    "fr": "Dom Pérignon Vintage 2012"
+                  },
+                  "button": {
+                    "de": "Dom Pérignon",
+                    "en": "Dom Pérignon",
+                    "fr": "Dom Pérignon"
+                  },
+                  "receipt": {
+                    "de": "Dom Pérignon Vintage 2012",
+                    "en": "Dom Pérignon Vintage 2012",
+                    "fr": "Dom Pérignon Vintage 2012"
+                  }
+                },
+                "item_price_value": 280.00,
+                "pricing_schedules": [],
+                "availability_schedule": {
+                  "always_available": false,
+                  "schedules": [
+                    {
+                      "days": ["friday", "saturday"],
+                      "time": {"start": "18:00", "end": "23:00"}
+                    }
+                  ]
+                },
+                "associated_category_unique_identifier": 2,
+                "additional_item_attributes": {
+                  "vintage": 2012,
+                  "region": "Champagne, France",
+                  "alcohol_content": 12.5,
+                  "serving_size": "0.75l",
+                  "allergens": ["sulfites"],
+                  "wine_rating": {
+                    "parker": 95,
+                    "wine_spectator": 94
+                  }
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": true,
+                  "is_organic": false
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "sommelier@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "sommelier@chateaubellevue.com",
+                  "version": 1,
+                  "change_log": []
+                }
+              },
+              {
+                "item_unique_identifier": 2001,
+                "display_names": {
+                  "menu": {
+                    "de": "Langustinen-Carpaccio mit Kaviar",
+                    "en": "Langoustine Carpaccio with Caviar",
+                    "fr": "Carpaccio de langoustines au caviar"
+                  },
+                  "button": {
+                    "de": "Langustinen-Carpaccio",
+                    "en": "Langoustine Carpaccio",
+                    "fr": "Carpaccio langoustines"
+                  },
+                  "receipt": {
+                    "de": "Langustinen-Carpaccio Kaviar",
+                    "en": "Langoustine Carpaccio Caviar",
+                    "fr": "Carpaccio langoustines caviar"
+                  }
+                },
+                "item_price_value": 45.00,
+                "pricing_schedules": [
+                  {
+                    "schedule_id": "lunch_special",
+                    "price": 38.00,
+                    "valid_days": ["tuesday", "wednesday", "thursday"],
+                    "valid_time": {"start": "12:00", "end": "15:00"},
+                    "date_range": {
+                      "start": "2024-01-01",
+                      "end": "2024-12-31"
+                    }
+                  }
+                ],
+                "availability_schedule": {
+                  "always_available": true,
+                  "schedules": []
+                },
+                "associated_category_unique_identifier": 6,
+                "additional_item_attributes": {
+                  "source": "Scottish Langoustines",
+                  "caviar_type": "Ossetra",
+                  "preparation_time": "15 minutes",
+                  "allergens": ["crustaceans", "fish"],
+                  "dietary_info": ["gluten_free"],
+                  "chef_special": true
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": true
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1,
+                  "change_log": []
+                }
+              },
+              {
+                "item_unique_identifier": 3001,
+                "display_names": {
+                  "menu": {
+                    "de": "Wagyu Beef Filet Wellington",
+                    "en": "Wagyu Beef Filet Wellington",
+                    "fr": "Filet de bœuf Wagyu Wellington"
+                  },
+                  "button": {
+                    "de": "Wagyu Wellington",
+                    "en": "Wagyu Wellington",
+                    "fr": "Wagyu Wellington"
+                  },
+                  "receipt": {
+                    "de": "Wagyu Beef Wellington",
+                    "en": "Wagyu Beef Wellington",
+                    "fr": "Bœuf Wagyu Wellington"
+                  }
+                },
+                "item_price_value": 120.00,
+                "pricing_schedules": [],
+                "availability_schedule": {
+                  "always_available": false,
+                  "schedules": [
+                    {
+                      "days": ["friday", "saturday", "sunday"],
+                      "time": {"start": "18:30", "end": "21:30"}
+                    }
+                  ]
+                },
+                "associated_category_unique_identifier": 7,
+                "additional_item_attributes": {
+                  "beef_grade": "A5 Wagyu",
+                  "origin": "Japan",
+                  "weight": "300g",
+                  "preparation_time": "45 minutes",
+                  "cooking_method": "Wellington pastry",
+                  "allergens": ["gluten", "eggs"],
+                  "serving_temperature": "medium-rare",
+                  "limited_availability": true
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": false
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T14:30:00Z",
+                  "created_by": "chef@chateaubellevue.com",
+                  "last_modified_at": "2024-05-20T14:30:00Z",
+                  "last_modified_by": "chef@chateaubellevue.com",
+                  "version": 1,
+                  "change_log": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+---
+
+// examples/retail-electronics.json
+{
+  "$schema": "https://schemas.eckasse.com/oop-pos-mdf/v2.0.0/schema.json",
+  "company_details": {
+    "company_unique_identifier": 2,
+    "company_full_name": "TechWorld Electronics Store",
+    "meta_information": {
+      "format_version": "2.0.0",
+      "date_generated": "2024-05-20T15:00:00Z",
+      "generated_by": "eckasse-retail-configurator-v2.0.0",
+      "default_currency_symbol": "€",
+      "default_language": "de",
+      "supported_languages": ["de", "en"],
+      "audit_trail": {
+        "created_at": "2024-05-20T15:00:00Z",
+        "created_by": "manager@techworld.com",
+        "last_modified_at": "2024-05-20T15:00:00Z",
+        "last_modified_by": "manager@techworld.com",
+        "version": 1
+      }
+    },
+    "global_configurations": {
+      "promotions_definitions": [
+        {
+          "promotion_id": "student_discount",
+          "names": {
+            "de": "Studentenrabatt",
+            "en": "Student Discount"
+          },
+          "type": "percentage_discount",
+          "conditions": {
+            "min_quantity": 1,
+            "applicable_categories": [1, 2, 3],
+            "applicable_items": []
+          },
+          "discount": {
+            "type": "percentage",
+            "value": 10.0,
+            "max_discount_amount": 100.00
+          },
+          "validity": {
+            "start_date": "2024-01-01",
+            "end_date": "2024-12-31",
+            "days_of_week": ["monday", "tuesday", "wednesday", "thursday", "friday"]
+          },
+          "is_active": true
+        },
+        {
+          "promotion_id": "black_friday",
+          "names": {
+            "de": "Black Friday Special",
+            "en": "Black Friday Special"
+          },
+          "type": "percentage_discount",
+          "conditions": {
+            "min_quantity": 1,
+            "applicable_categories": [],
+            "applicable_items": []
+          },
+          "discount": {
+            "type": "percentage",
+            "value": 25.0,
+            "max_discount_amount": 500.00
+          },
+          "validity": {
+            "start_date": "2024-11-29",
+            "end_date": "2024-11-29",
+            "days_of_week": ["friday"]
+          },
+          "is_active": false
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_id": "inventory_reorder",
+          "name": "Automatic Reorder",
+          "trigger": {"type": "inventory_threshold", "threshold": 5},
+          "actions": [
+            {"type": "create_purchase_order"},
+            {"type": "send_notification", "recipients": ["procurement@techworld.com"]}
+          ],
+          "is_active": true
+        }
+      ],
+      "integrations": {
+        "inventory_management": {
+          "provider": "sap_retail",
+          "api_endpoint": "https://api.sapretail.com/v2",
+          "real_time_sync": true,
+          "is_enabled": true
+        },
+        "loyalty_program": {
+          "provider": "tech_rewards",
+          "api_key_ref": "tech_rewards_key",
+          "is_enabled": true
+        },
+        "price_comparison": {
+          "provider": "idealo",
+          "api_key_ref": "idealo_api",
+          "is_enabled": true
+        }
+      }
+    },
+    "branches": [
+      {
+        "branch_unique_identifier": 1,
+        "branch_names": {
+          "de": "Hauptfiliale München",
+          "en": "Main Store Munich"
+        },
+        "branch_address": "Maximilianstraße 12, 80539 München",
+        "point_of_sale_devices": [
+          {
+            "pos_device_unique_identifier": 1,
+            "pos_device_names": {
+              "de": "Kasse 1 (Haupteingang)",
+              "en": "POS 1 (Main Entrance)"
+            },
+            "pos_device_type": "DESKTOP",
+            "pos_device_external_number": 1,
+            "categories_for_this_pos": [
+              {
+                "category_unique_identifier": 1,
+                "category_names": {
+                  "de": "Smartphones",
+                  "en": "Smartphones"
+                },
+                "category_type": "other",
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T15:00:00Z",
+                  "created_by": "manager@techworld.com",
+                  "last_modified_at": "2024-05-20T15:00:00Z",
+                  "last_modified_by": "manager@techworld.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 2,
+                "category_names": {
+                  "de": "Laptops",
+                  "en": "Laptops"
+                },
+                "category_type": "other",
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T15:00:00Z",
+                  "created_by": "manager@techworld.com",
+                  "last_modified_at": "2024-05-20T15:00:00Z",
+                  "last_modified_by": "manager@techworld.com",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 3,
+                "category_names": {
+                  "de": "Zubehör",
+                  "en": "Accessories"
+                },
+                "category_type": "other",
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T15:00:00Z",
+                  "created_by": "manager@techworld.com",
+                  "last_modified_at": "2024-05-20T15:00:00Z",
+                  "last_modified_by": "manager@techworld.com",
+                  "version": 1
+                }
+              }
+            ],
+            "items_for_this_pos": [
+              {
+                "item_unique_identifier": 10001,
+                "display_names": {
+                  "menu": {
+                    "de": "iPhone 15 Pro 256GB Titan Natur",
+                    "en": "iPhone 15 Pro 256GB Natural Titanium"
+                  },
+                  "button": {
+                    "de": "iPhone 15 Pro",
+                    "en": "iPhone 15 Pro"
+                  },
+                  "receipt": {
+                    "de": "iPhone 15 Pro 256GB",
+                    "en": "iPhone 15 Pro 256GB"
+                  }
+                },
+                "item_price_value": 1329.00,
+                "associated_category_unique_identifier": 1,
+                "additional_item_attributes": {
+                  "sku": "IPHONE15PRO256TN",
+                  "ean": "194253441830",
+                  "manufacturer": "Apple",
+                  "model": "iPhone 15 Pro",
+                  "storage": "256GB",
+                  "color": "Natural Titanium",
+                  "warranty_months": 24,
+                  "in_stock": 15,
+                  "reorder_level": 5,
+                  "supplier": "Apple Deutschland"
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": false
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T15:00:00Z",
+                  "created_by": "inventory@techworld.com",
+                  "last_modified_at": "2024-05-20T15:00:00Z",
+                  "last_modified_by": "inventory@techworld.com",
+                  "version": 1
+                }
+              },
+              {
+                "item_unique_identifier": 20001,
+                "display_names": {
+                  "menu": {
+                    "de": "MacBook Pro 14\" M3 Pro 512GB Space Schwarz",
+                    "en": "MacBook Pro 14\" M3 Pro 512GB Space Black"
+                  },
+                  "button": {
+                    "de": "MacBook Pro 14\"",
+                    "en": "MacBook Pro 14\""
+                  },
+                  "receipt": {
+                    "de": "MacBook Pro 14\" M3 Pro",
+                    "en": "MacBook Pro 14\" M3 Pro"
+                  }
+                },
+                "item_price_value": 2899.00,
+                "pricing_schedules": [
+                  {
+                    "schedule_id": "education_pricing",
+                    "price": 2609.00,
+                    "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+                    "date_range": {
+                      "start": "2024-01-01",
+                      "end": "2024-12-31"
+                    }
+                  }
+                ],
+                "associated_category_unique_identifier": 2,
+                "additional_item_attributes": {
+                  "sku": "MACBOOKPRO14M3PRO512SB",
+                  "ean": "195949007262",
+                  "manufacturer": "Apple",
+                  "model": "MacBook Pro 14\"",
+                  "processor": "M3 Pro",
+                  "storage": "512GB SSD",
+                  "ram": "18GB",
+                  "color": "Space Black",
+                  "warranty_months": 24,
+                  "in_stock": 8,
+                  "reorder_level": 3
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": false
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T15:00:00Z",
+                  "created_by": "inventory@techworld.com",
+                  "last_modified_at": "2024-05-20T15:00:00Z",
+                  "last_modified_by": "inventory@techworld.com",
+                  "version": 1
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+---
+
+// examples/cafe-organic.json
+{
+  "$schema": "https://schemas.eckasse.com/oop-pos-mdf/v2.0.0/schema.json",
+  "company_details": {
+    "company_unique_identifier": 3,
+    "company_full_name": "Green Bean Organic Café",
+    "meta_information": {
+      "format_version": "2.0.0",
+      "date_generated": "2024-05-20T16:00:00Z",
+      "default_currency_symbol": "€",
+      "default_language": "de",
+      "supported_languages": ["de", "en"],
+      "audit_trail": {
+        "created_at": "2024-05-20T16:00:00Z",
+        "created_by": "owner@greenbean.cafe",
+        "last_modified_at": "2024-05-20T16:00:00Z",
+        "last_modified_by": "owner@greenbean.cafe",
+        "version": 1
+      }
+    },
+    "global_configurations": {
+      "promotions_definitions": [
+        {
+          "promotion_id": "morning_special",
+          "names": {
+            "de": "Frühstücks-Special",
+            "en": "Morning Special"
+          },
+          "type": "percentage_discount",
+          "conditions": {
+            "min_quantity": 1,
+            "applicable_categories": [1, 3],
+            "applicable_items": []
+          },
+          "discount": {
+            "type": "percentage",
+            "value": 15.0
+          },
+          "validity": {
+            "days_of_week": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+            "time_range": {"start": "07:00", "end": "10:00"}
+          },
+          "is_active": true
+        }
+      ],
+      "workflows": [
+        {
+          "workflow_id": "daily_fresh_delivery",
+          "name": "Tägliche Frischware-Lieferung",
+          "trigger": {"type": "schedule", "time": "06:00"},
+          "actions": [
+            {"type": "check_fresh_items"},
+            {"type": "update_availability"},
+            {"type": "send_notification", "recipients": ["kitchen@greenbean.cafe"]}
+          ],
+          "is_active": true
+        }
+      ],
+      "integrations": {
+        "loyalty_program": {
+          "provider": "coffee_lovers_club",
+          "is_enabled": true
+        },
+        "sustainability_tracking": {
+          "provider": "green_metrics",
+          "track_carbon_footprint": true,
+          "is_enabled": true
+        }
+      }
+    },
+    "branches": [
+      {
+        "branch_unique_identifier": 1,
+        "branch_names": {
+          "de": "Green Bean Café Schwabing",
+          "en": "Green Bean Café Schwabing"
+        },
+        "branch_address": "Leopoldstraße 45, 80802 München",
+        "point_of_sale_devices": [
+          {
+            "pos_device_unique_identifier": 1,
+            "pos_device_names": {
+              "de": "Hauptkasse",
+              "en": "Main POS"
+            },
+            "pos_device_type": "TABLET",
+            "pos_device_external_number": 1,
+            "categories_for_this_pos": [
+              {
+                "category_unique_identifier": 1,
+                "category_names": {
+                  "de": "Kaffee & Heißgetränke",
+                  "en": "Coffee & Hot Drinks"
+                },
+                "category_type": "drink",
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T16:00:00Z",
+                  "created_by": "owner@greenbean.cafe",
+                  "last_modified_at": "2024-05-20T16:00:00Z",
+                  "last_modified_by": "owner@greenbean.cafe",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 2,
+                "category_names": {
+                  "de": "Kaltgetränke",
+                  "en": "Cold Drinks"
+                },
+                "category_type": "drink",
+                "default_linked_main_group_unique_identifier": 1,
+                "audit_trail": {
+                  "created_at": "2024-05-20T16:00:00Z",
+                  "created_by": "owner@greenbean.cafe",
+                  "last_modified_at": "2024-05-20T16:00:00Z",
+                  "last_modified_by": "owner@greenbean.cafe",
+                  "version": 1
+                }
+              },
+              {
+                "category_unique_identifier": 3,
+                "category_names": {
+                  "de": "Bio-Backwaren",
+                  "en": "Organic Pastries"
+                },
+                "category_type": "food",
+                "default_linked_main_group_unique_identifier": 2,
+                "audit_trail": {
+                  "created_at": "2024-05-20T16:00:00Z",
+                  "created_by": "owner@greenbean.cafe",
+                  "last_modified_at": "2024-05-20T16:00:00Z",
+                  "last_modified_by": "owner@greenbean.cafe",
+                  "version": 1
+                }
+              }
+            ],
+            "items_for_this_pos": [
+              {
+                "item_unique_identifier": 1001,
+                "display_names": {
+                  "menu": {
+                    "de": "Bio Espresso (Fairtrade)",
+                    "en": "Organic Espresso (Fairtrade)"
+                  },
+                  "button": {
+                    "de": "Bio Espresso",
+                    "en": "Organic Espresso"
+                  },
+                  "receipt": {
+                    "de": "Bio Espresso",
+                    "en": "Organic Espresso"
+                  }
+                },
+                "item_price_value": 2.80,
+                "pricing_schedules": [
+                  {
+                    "schedule_id": "morning_special",
+                    "price": 2.38,
+                    "valid_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+                    "valid_time": {"start": "07:00", "end": "10:00"}
+                  }
+                ],
+                "associated_category_unique_identifier": 1,
+                "additional_item_attributes": {
+                  "origin": "Guatemala, Huehuetenango",
+                  "certification": ["Organic", "Fairtrade", "Rainforest Alliance"],
+                  "roast_level": "Medium",
+                  "caffeine_content": "High",
+                  "allergens": [],
+                  "vegan": true,
+                  "carbon_footprint": "Low"
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": true
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T16:00:00Z",
+                  "created_by": "barista@greenbean.cafe",
+                  "last_modified_at": "2024-05-20T16:00:00Z",
+                  "last_modified_by": "barista@greenbean.cafe",
+                  "version": 1
+                }
+              },
+              {
+                "item_unique_identifier": 3001,
+                "display_names": {
+                  "menu": {
+                    "de": "Veganes Croissant (Bio-Dinkel)",
+                    "en": "Vegan Croissant (Organic Spelt)"
+                  },
+                  "button": {
+                    "de": "Vegan Croissant",
+                    "en": "Vegan Croissant"
+                  },
+                  "receipt": {
+                    "de": "Vegan Croissant Bio",
+                    "en": "Vegan Croissant Organic"
+                  }
+                },
+                "item_price_value": 3.50,
+                "availability_schedule": {
+                  "always_available": false,
+                  "schedules": [
+                    {
+                      "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+                      "time": {"start": "07:00", "end": "14:00"}
+                    }
+                  ]
+                },
+                "associated_category_unique_identifier": 3,
+                "additional_item_attributes": {
+                  "ingredients": ["Bio-Dinkelmehl", "Pflanzenmargarine", "Mandelmilch"],
+                  "allergens": ["gluten", "nuts"],
+                  "dietary_info": ["vegan", "organic"],
+                  "preparation_time": "Täglich frisch gebacken",
+                  "local_supplier": true
+                },
+                "item_flags": {
+                  "is_sellable": true,
+                  "has_negative_price": false,
+                  "requires_age_verification": false,
+                  "is_organic": true
+                },
+                "audit_trail": {
+                  "created_at": "2024-05-20T16:00:00Z",
+                  "created_by": "baker@greenbean.cafe",
+                  "last_modified_at": "2024-05-20T16:00:00Z",
+                  "last_modified_by": "baker@greenbean.cafe",
+                  "version": 1
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
